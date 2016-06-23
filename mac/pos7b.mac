@@ -1,0 +1,9 @@
+/run/initialize
+/gps/particle ion
+/gps/ion 37 85
+/gps/pos/centre  0.  -21.5  -55.65 mm
+#manca cilindro
+/gps/time 0.0 ns
+/gps/energy 0.29383 eV
+/gps/ang/type iso
+/run/beamOn 10
