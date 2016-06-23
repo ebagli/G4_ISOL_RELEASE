@@ -40,6 +40,7 @@ public:
     G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
                                     const G4Step&  aStep);
     
+private:
     G4double kCarTolerance;
 };
 
