@@ -73,102 +73,62 @@ DetectorConstruction::~DetectorConstruction(){}
 
 void DetectorConstruction::DefineMaterials()
 {
-    //This function illustrates the possible ways to define materials
+	//This function illustrates the possible ways to define materials
     
-    G4String symbol;             //a=mass of a mole;
-    G4double a, z, density;      //z=mean number of protons;
+	G4String symbol;             //a=mass of a mole;
+	G4double a, z, density;      //z=mean number of protons;
     
-    G4int ncomponents, natoms;
-    G4double fractionmass;
-    G4double temperature, pressure;
+	G4int ncomponents, natoms;
+	G4double fractionmass;
+	G4double temperature, pressure;
     
-    //
-    // define Elements
-    //
+	//
+	// define Elements
+	//
     
-    G4Element* H  = new G4Element("Hydrogen",symbol="H",  z= 1, a=   1.01*g/mole);
-    G4Element* C  = new G4Element("Carbon",  symbol="C",  z= 6, a=  12.01*g/mole);
-    G4Element* N  = new G4Element("Nitrogen",symbol="N",  z= 7, a=  14.01*g/mole);
-    G4Element* O  = new G4Element("Oxygen",  symbol="O",  z= 8, a=  16.00*g/mole);
-    G4Element* Na = new G4Element("Sodium",  symbol="Na", z=11, a=  22.99*g/mole);
-    G4Element* Ar = new G4Element("Argon",   symbol="Ar", z=18, a=  39.95*g/mole);
-    G4Element* I  = new G4Element("Iodine",  symbol="I" , z=53, a= 126.90*g/mole);
-    
-    //
-    // define simple materials
-    //
-    
-    new G4Material("H2Liq"    , z= 1, a= 1.01*g/mole, density= 70.8*mg/cm3);
-    new G4Material("Beryllium", z= 4, a= 9.01*g/mole, density= 1.848*g/cm3);
-    new G4Material("Aluminium", z=13, a=26.98*g/mole, density= 2.700*g/cm3);
-    new G4Material("Silicon"  , z=14, a=28.09*g/mole, density= 2.330*g/cm3);
-    
-    G4Material* lAr =
-    new G4Material("liquidArgon", density= 1.390*g/cm3, ncomponents=1);
-    lAr->AddElement(Ar, natoms=1);
-    
-    new G4Material("Iron",     z=26, a= 55.85*g/mole, density= 7.870*g/cm3);
-    new G4Material("Copper",   z=29, a= 63.55*g/mole, density= 8.960*g/cm3);
-    new G4Material("Germanium",z=32, a= 72.61*g/mole, density= 5.323*g/cm3);
-    new G4Material("Silver",   z=47, a=107.87*g/mole, density= 10.50*g/cm3);
-    new G4Material("Tungsten", z=74, a=183.85*g/mole, density= 19.30*g/cm3);
-    new G4Material("Gold",     z=79, a=196.97*g/mole, density= 19.32*g/cm3);
-    new G4Material("Lead",     z=82, a=207.19*g/mole, density= 11.35*g/cm3);
-    
-    // define a material from elements.   case 1: chemical molecule
-    G4Material* H2O = new G4Material("Water", density= 1.000*g/cm3, ncomponents=2);
-    H2O->AddElement(H, natoms=2);
-    H2O->AddElement(O, natoms=1);
-    H2O->GetIonisation()->SetMeanExcitationEnergy(75*eV);
-    
-    G4Material* CH = new G4Material("Plastic", density= 1.04*g/cm3, ncomponents=2);
-    CH->AddElement(C, natoms=1);
-    CH->AddElement(H, natoms=1);
-    
-    G4Material* NaI = new G4Material("NaI", density= 3.67*g/cm3, ncomponents=2);
-    NaI->AddElement(Na, natoms=1);
-    NaI->AddElement(I , natoms=1);
-    NaI->GetIonisation()->SetMeanExcitationEnergy(452*eV);
-    
-    // define a material from elements.   case 2: mixture by fractional mass
-    G4Material* Air = new G4Material("Air", density= 1.290*mg/cm3, ncomponents=2);
-    Air->AddElement(N, fractionmass=0.7);
-    Air->AddElement(O, fractionmass=0.3);
-    
-    G4Material* Air20 =
-    new G4Material("Air20", density= 1.205*mg/cm3, ncomponents=2,
-                   kStateGas, 293.*kelvin, 1.*atmosphere);
-    Air20->AddElement(N, fractionmass=0.7);
-    Air20->AddElement(O, fractionmass=0.3);
-    
-    //graphite
-    G4Material* Graphite =
-    new G4Material("Graphite", density= 1.9*g/cm3, ncomponents=1);
-    Graphite->AddElement(C, fractionmass=1.);
-    
-    //tantalum
-    G4Material* Ta=
-    new G4Material("Tantalum", z=73., a=180.95*g/mole, density=16.69*g/cm3);
-    
-    //target
-    G4Material* Target=
-    new G4Material("Target", z=74., a=182.95*g/mole, density=14.69*g/cm3);
+	G4Element* C  = new G4Element("Carbon",  symbol="C",  z= 6, a=  12.01*g/mole);
+	G4Element* U  = new G4Element("Uranium",  symbol="U",  z= 92, a=  238*g/mole);
 
+    	//Graphite
+
+	G4Material* Graphite =
+	new G4Material("Graphite", density= 1.9*g/cm3, ncomponents=1);
+	Graphite->AddElement(C, fractionmass=1.);
+ 
+  
+	//Uranium carbide
+
+	G4Material* UC4 = new G4Material("UC4", density= 4.*g/cm3, ncomponents=2);
+	UC4->AddElement(C, natoms=4.);
+	UC4->AddElement(U, natoms=1.);
+
+
+	//Tantalum
+
+	G4Material* Ta= new G4Material("Tantalum", z=73., a=180.95*g/mole, density=16.69*g/cm3);
     
-    // example of vacuum
-    density     = 1.e-5*g/cm3;
-    pressure    = 1.e-2*bar;
-    temperature = 2273.15*kelvin;         //from PhysicalConstants.h
-    G4Material* TVac = new G4Material("TVac", density, ncomponents=1,kStateGas,temperature,pressure);
-    TVac->AddMaterial(Air, fractionmass=1.);
+    
+    
+	//
+	//Vacuum
+	//
+  	// Get nist material manager
+  	G4NistManager* nist = G4NistManager::Instance();
+	G4Material* Air = nist->FindOrBuildMaterial("G4_AIR");  
+    	density     = 1.e-5*g/cm3;
+    	pressure    = 1.e-2*bar;
+    	temperature = 2273.15*kelvin;         //from PhysicalConstants.h
+    	G4Material* TVac = new G4Material("TVac", density, ncomponents=1,
+                                      kStateGas,temperature,pressure);
+   	 TVac->AddMaterial(Air, fractionmass=1.);
     
     
     
     
-    WorldMaterial = TVac;
-    TubeMaterial = Ta;
-    BoxMaterial = Graphite;
-    DiskMaterial = Target;
+    	WorldMaterial = TVac;
+    	TubeMaterial = Ta;
+    	BoxMaterial = Graphite;
+    	DiskMaterial = UC4;
     
 }
 
