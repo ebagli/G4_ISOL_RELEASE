@@ -31,10 +31,14 @@
 
 #include "DetectorConstruction.hh"
 
+#include "globals.hh"
+
 #include "G4Material.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4CutTubs.hh"
 #include "G4Torus.hh"
+#include "G4ThreeVector.hh"
 
 #include "G4PVPlacement.hh"
 #include "G4PVParameterised.hh"
@@ -159,7 +163,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                   0);			//copy number
     
     // Disks
-    G4double DiskRmin = 0.*mm;    G4double DiskRmax = 40*mm;    G4double DiskDz   = 1.3*mm;
+    G4double DiskRmin = 0.*mm;    G4double DiskRmax = 40*mm;    G4double DiskDz   = 0.8*mm;
     G4Tubs* sDisk = new G4Tubs("Disk1",				//name
                                DiskRmin/2,
                                DiskRmax/2,
@@ -230,63 +234,92 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     
     // TRANSFER LINE: TRANSFER TORUS + TRANSFER TUBE
+
+    // TRANSFER LINE: SECTION 1 + SECTION 2
+
+    G4double Sqrt3 = std::sqrt(3);
+    G4double TransferRmin = 8*mm; G4double TransferRmax= 8.8*mm;    G4double TranSect1Dz= 60/Sqrt3*mm;
+
+
+    G4CutTubs* Section1 = new G4CutTubs("Section1",				//name
+                                       TransferRmin/2,
+                                       TransferRmax/2,
+                                       TranSect1Dz/2,
+                                       0.*deg,
+                                       360.*deg,
+                                       G4ThreeVector(0,0,-1),
+                                       G4ThreeVector(0,-0.5,0.5*Sqrt3));
+
+
+    G4double CutSecRmin  = 0*mm;    G4double CutSecRmax  =50*mm;    G4double CutSecDz    =10*mm;
+    G4Tubs* CutSection1 = new G4Tubs("CutSection1",				//name
+                               CutSecRmin/2,
+                               CutSecRmax/2,
+                               CutSecDz/2,
+                               0.*deg,
+                               360.*deg);	//dimensions
+ 
+    G4RotationMatrix* yRot = new G4RotationMatrix();
+    yRot->rotateY(90.*deg);
+
+    G4VSolid* sTransferline1 = new G4SubtractionSolid ("Transferline1",
+    							Section1,
+    							CutSection1,
+    							yRot,
+    							G4ThreeVector(0,0,-TranSect1Dz/2));
+
+    G4LogicalVolume* lTransferline1 = new G4LogicalVolume(sTransferline1,		//shape
+                                                         TubeMaterial,			//material
+                                                         "Transferline1");		//name
+    G4RotationMatrix* tRot = new G4RotationMatrix();
+    tRot->rotateY(-90.*deg); 
+    tRot->rotateX(60.*deg); 
+   
     
+    new G4PVPlacement(tRot,				// rotation
+                      G4ThreeVector(15/Sqrt3*mm,15*mm,0*mm), 			//at (0,0,0)
+                      lTransferline1,			//logical volume
+                      "Transferline1",			//name
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+
+  
     G4RotationMatrix* aRot = new G4RotationMatrix();
     aRot->rotateY(180.*deg);
     
     G4RotationMatrix* bRot = new G4RotationMatrix();
     bRot->rotateY(90.*deg);
-    
-    G4double pRmin    = 8*mm; G4double pRmax    = 8.8*mm;    G4double pRtor    = 8*mm;
-    
-    G4Torus* sTransfer = new G4Torus("Transfer",				//name
-                                     pRmin/2,
-                                     pRmax/2,
-                                     pRtor,
-                                     30.*deg,
-                                     60.*deg);	//dimensions
-    
-    G4LogicalVolume* lTransfer = new G4LogicalVolume(sTransfer,			//shape
-                                                     TubeMaterial,		//material
-                                                     "Transfer");		//name
-    
-    
-    
-    new G4PVPlacement(aRot,				// rotation
-                      G4ThreeVector (18.*mm,16.*mm,0.),//4*mm,10*mm,0.),		//at (0,0,0)
-                      lTransfer,			//logical volume
-                      "Transfer",			//name
-                      logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
-                      0);				//copy number
-    
-    
-    
-    G4double TransferRmin = 8*mm; G4double TransferRmax= 8.8*mm;    G4double TransferDz= 71.3*mm;
-    
-    G4Tubs* sTransfertube = new G4Tubs("Transfertube",				//name
+
+    G4double TranSect2Dz= 90-30/Sqrt3*mm;
+
+    G4CutTubs* sTransferline2 = new G4CutTubs("sTransferline2",				//name
                                        TransferRmin/2,
                                        TransferRmax/2,
-                                       TransferDz/2,
+                                       TranSect2Dz/2,
                                        0.*deg,
-                                       360.*deg);	//dimensions
-    
-    G4LogicalVolume* lTransfertube = new G4LogicalVolume(sTransfertube,			//shape
-                                                         TubeMaterial,		//material
-                                                         "Transfertube");		//name
-    
-    
-    
-    new G4PVPlacement(bRot,				// rotation
-                      G4ThreeVector(18.+35.65*mm,24.*mm,0.),//12*mm,27*mm, 0. ),//40 *mm,16.5*mm, 0.),		//at (0,0,0)
-                      lTransfertube,			//logical volume
-                      "Transfertube",			//name
+                                       360.*deg,
+                                       G4ThreeVector(0,-0.5/Sqrt3,-0.5),
+                                       G4ThreeVector(0,0,1)); 
+ 
+    G4LogicalVolume* lTransferline2 = new G4LogicalVolume(sTransferline2,		//shape
+                                                         TubeMaterial,			//material
+                                                         "Transferline2");		//name  
+    G4RotationMatrix* tRot2 = new G4RotationMatrix();
+    tRot2->rotateY(-90.*deg); 
+
+
+    new G4PVPlacement(tRot2,				// rotation
+                      G4ThreeVector(45+15/Sqrt3*mm,30*mm,0*mm), 			//at (0,0,0)
+                      lTransferline2,			//logical volume
+                      "Transferline2",			//name
                       logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
+                      false,				//no boolean operation
                       0);				//copy number
+
+    G4double pRmin    = 8*mm;  G4double pRtor    = 8*mm;
     
-    
-    
+
     
     // "SOLID" HOLE
     
@@ -307,7 +340,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // HOLE: TANTALUM TUBE - "SOLID" HOLE
     
     // Tantalium Tube
-    G4double TubeRmin  = 49.5*mm;    G4double TubeRmax  =50*mm;    G4double TubeDz    =215.5*mm;
+    G4double TubeRmin  = 49.6*mm;    G4double TubeRmax  =50*mm;    G4double TubeDz    =215.5*mm;
     G4Tubs* sTube = new G4Tubs("Tube",				//name
                                TubeRmin/2,
                                TubeRmax/2,
@@ -327,7 +360,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                          TubeMaterial,		//material
                                                          "Tube-Transfer");		//name
     
-    new G4PVPlacement(0,				//no rotation
+    new G4PVPlacement(0,			//no rotation
                       G4ThreeVector(),		//at (0,0,0)
                       lsubtraction1,			//logical volume
                       "Tube-Transfer",			//name
@@ -385,7 +418,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                       "detector");		//its name
     
     new G4PVPlacement(0,			//no rotation
-                                                  G4ThreeVector(90.*mm,30.*mm,0.),	//at (0,0,0)
+                                                  G4ThreeVector(90.5*mm,30.*mm,0.),	//at (0,0,0)
                       logicDetector,		//its logical volume
                                                   "detector",		//its name
                                                   logicWorld,			//its mother  volume
