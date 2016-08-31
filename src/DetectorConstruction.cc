@@ -174,7 +174,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4LogicalVolume* lDisk = new G4LogicalVolume(sDisk,			//shape
                                                  DiskMaterial,		//material
                                                  "Disk1");		//name
-    G4double ZposDisk[7] = {48.73*mm,33.43*mm, 12.13*mm, -9.17*mm, -26.47*mm, -39.77*mm, -53.07*mm};
+    G4double ZposDisk[7] = {55.68*mm, 36.38*mm, 10.08*mm, -15.22*mm, -32.52*mm, -49.82*mm, -66.12*mm};
     
     for(G4int i0=0;i0<7;i0++){
         new G4PVPlacement(0,				//no rotation
@@ -186,56 +186,184 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                           i0);				//copy number
     }
     
-    // Blocks
-    G4double Block1Rmin = 0*mm;  G4double Block1Rmax = 45*mm;    G4double Block1Dz= 46.03*mm;
-    G4Tubs* sBlock1 = new G4Tubs("Block1",				//name
-                                 Block1Rmin/2,
-                                 Block1Rmax/2,
-                                 Block1Dz/2,
+    // Target Window
+    G4double WindowRmin = 0*mm;  G4double WindowRmax = 45*mm;    G4double WindowDz= 0.2*mm;
+    G4Tubs* sWindow = new G4Tubs("Window",				//name
+                                 WindowRmin/2,
+                                 WindowRmax/2,
+                                 WindowDz/2,
                                  0.*deg,
                                  360.*deg);	//dimensions
     
-    G4LogicalVolume* lBlock1 = new G4LogicalVolume(sBlock1,			//shape
+    G4LogicalVolume* lWindow = new G4LogicalVolume(sWindow,		//shape
                                                    BoxMaterial,		//material
-                                                   "Block1");		//name
+                                                   "Window");		//name
     
     new G4PVPlacement(0,				//no rotation
-                      G4ThreeVector(0.,0.,-81.235),		//at (0,0,0)
-                      lBlock1,			//logical volume
-                      "Block1",			//
+                      G4ThreeVector(0.,0.,-77.32),	//at (0,0,0)
+                      lWindow,				//logical volume
+                      "Window",				//
                       logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
+                      false,				//no boolean operation
                       0);				//copy number
-    
-    
-    G4double Block2Rmin = 0*mm;  G4double Block2Rmax = 45*mm;    G4double Block2Dz= 49.37*mm;
-    
-    G4Tubs* sBlock2 = new G4Tubs("Block2",				//name
-                                 Block2Rmin/2,
-                                 Block2Rmax/2,
-                                 Block2Dz/2,
+
+    // Target Window spacer
+    G4double Wsp1Rmin = 42*mm;  G4double Wsp1Rmax = 45*mm;    G4double Wsp1Dz= 29.4*mm;
+    G4Tubs* sWsp1 = new G4Tubs("Wsp1",				//name
+                                 Wsp1Rmin/2,
+                                 Wsp1Rmax/2,
+                                 Wsp1Dz/2,
                                  0.*deg,
                                  360.*deg);	//dimensions
     
-    G4LogicalVolume* lBlock2 = new G4LogicalVolume(sBlock2,			//shape
+    G4LogicalVolume* lWsp1 = new G4LogicalVolume(sWsp1,		//shape
                                                    BoxMaterial,		//material
-                                                   "Block2");		//name
+                                                   "Wsp1");		//name
+    
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,-92.03),	//at (0,0,0)
+                      lWsp1,				//logical volume
+                      "Window spacer 1",				//
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+
+    G4double Wsp2Rmin = 41*mm;  G4double Wsp2Rmax = 42*mm;    G4double Wsp2Dz= 12*mm;
+    G4Tubs* sWsp2 = new G4Tubs("Wsp2",				//name
+                                 Wsp2Rmin/2,
+                                 Wsp2Rmax/2,
+                                 Wsp2Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
+    
+    G4LogicalVolume* lWsp2 = new G4LogicalVolume(sWsp2,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Wsp2");		//name
+    
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,-83.33),	//at (0,0,0)
+                      lWsp2,				//logical volume
+                      "Window spacer 2",				//
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+
+    // Target dumps    
+    
+    G4double DumpRmin = 0*mm;  G4double DumpRmax = 45*mm;    G4double Dump12Dz= 0.8*mm; G4double Dump3Dz= 1*mm;
+    
+    G4Tubs* sDump12 = new G4Tubs("Dump12",				//name
+                                 DumpRmin/2,
+                                 DumpRmax/2,
+                                 Dump12Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
+    
+    G4LogicalVolume* lDump12 = new G4LogicalVolume(sDump12,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Dump12");		//name
     
     
     new G4PVPlacement(0,				//no rotation
-                      G4ThreeVector(0.,0.,79.565),		//at (0,0,0)
-                      lBlock2,			//logical volume
-                      "Block2",			//name
+                      G4ThreeVector(0.,0.,68.28),	//at (0,0,0)
+                      lDump12,				//logical volume
+                      "Dump1",				//name
                       logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
+                      false,				//no boolean operation
                       0);				//copy number
     
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,75.08),	//at (0,0,0)
+                      lDump12,				//logical volume
+                      "Dump2",				//name
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+    G4Tubs* sDump3 = new G4Tubs("Dump3",				//name
+                                 DumpRmin/2,
+                                 DumpRmax/2,
+                                 Dump3Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
+    
+    G4LogicalVolume* lDump3 = new G4LogicalVolume(sDump3,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Dump3");		//name
     
     
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,83.88),	//at (0,0,0)
+                      lDump3,				//logical volume
+                      "Dump3",				//name
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number    
+
+    // Target Dump spacers
+
+    G4double Dsp1Rmin = 42*mm;  G4double Dsp1Rmax = 45*mm;    G4double Dsp1Dz= 6*mm;
+    G4Tubs* sDsp1 = new G4Tubs("Dsp1",				//name
+                                 Dsp1Rmin/2,
+                                 Dsp1Rmax/2,
+                                 Dsp1Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
     
-    // TRANSFER LINE: TRANSFER TORUS + TRANSFER TUBE
+    G4LogicalVolume* lDsp1 = new G4LogicalVolume(sDsp1,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Dsp1");		//name
+    
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,71.68),	//at (0,0,0)
+                      lDsp1,				//logical volume
+                      "Dump spacer 1",			//
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+
+    G4double Dsp2Rmin = 42*mm;  G4double Dsp2Rmax = 45*mm;    G4double Dsp2Dz= 8*mm;
+    G4Tubs* sDsp2 = new G4Tubs("Dsp2",				//name
+                                 Dsp2Rmin/2,
+                                 Dsp2Rmax/2,
+                                 Dsp2Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
+    
+    G4LogicalVolume* lDsp2 = new G4LogicalVolume(sDsp2,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Dsp2");		//name
+    
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,79.48),	//at (0,0,0)
+                      lDsp2,				//logical volume
+                      "Dump spacer 2",			//
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
+
+    G4double Dsp3Rmin = 34*mm;  G4double Dsp3Rmax = 45*mm;    G4double Dsp3Dz= 10.1*mm;
+    G4Tubs* sDsp3 = new G4Tubs("Dsp3",				//name
+                                 Dsp3Rmin/2,
+                                 Dsp3Rmax/2,
+                                 Dsp3Dz/2,
+                                 0.*deg,
+                                 360.*deg);	//dimensions
+    
+    G4LogicalVolume* lDsp3 = new G4LogicalVolume(sDsp3,		//shape
+                                                   BoxMaterial,		//material
+                                                   "Dsp2");		//name
+    
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0.,0.,89.43),	//at (0,0,0)
+                      lDsp3,				//logical volume
+                      "Dump spacer 3",			//
+                      logicWorld,	       		//mother  volume
+                      false,				//no boolean operation
+                      0);				//copy number
 
     // TRANSFER LINE: SECTION 1 + SECTION 2
+
+    // Section 1
 
     G4double Sqrt3 = std::sqrt(3);
     G4double TransferRmin = 8*mm; G4double TransferRmax= 8.8*mm;    G4double TranSect1Dz= 60/Sqrt3*mm;
@@ -284,12 +412,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       false,				//no boolean operation
                       0);				//copy number
 
-  
-    G4RotationMatrix* aRot = new G4RotationMatrix();
-    aRot->rotateY(180.*deg);
-    
-    G4RotationMatrix* bRot = new G4RotationMatrix();
-    bRot->rotateY(90.*deg);
+
+    // Section 2
 
     G4double TranSect2Dz= 90-30/Sqrt3*mm;
 
@@ -309,39 +433,33 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     tRot2->rotateY(-90.*deg); 
 
 
-    new G4PVPlacement(tRot2,				// rotation
+    new G4PVPlacement(tRot2,								// rotation
                       G4ThreeVector(45+15/Sqrt3*mm,30*mm,0*mm), 			//at (0,0,0)
-                      lTransferline2,			//logical volume
-                      "Transferline2",			//name
-                      logicWorld,	       		//mother  volume
-                      false,				//no boolean operation
-                      0);				//copy number
-
-    G4double pRmin    = 8*mm;  G4double pRtor    = 8*mm;
-    
+                      lTransferline2,							//logical volume
+                      "Transferline2",							//name
+                      logicWorld,	       						//mother  volume
+                      false,								//no boolean operation
+                      0);								//copy number
 
     
-    // "SOLID" HOLE
+    // TARGET HEATER
     
     
-    
-    G4Torus* sHole = new G4Torus("Hole",				//name
-                                 0,pRmin/2,
-                                 pRtor,
+    // Tantalum heater hole
+
+    G4double ThHoleR = 8*mm; G4double ThHoleDz= 30*mm; 
+
+    G4Tubs* sThHole = new G4Tubs("ThHole",				//name
+                                 0,
+				 ThHoleR/2,
+                                 ThHoleDz,
                                  0.*deg,
-                                 90.*deg);	//dimensions
-    
-    
-    G4ThreeVector transtransfer(18.*mm,16.*mm,0.);
-    
-    
-    
-    
-    // HOLE: TANTALUM TUBE - "SOLID" HOLE
-    
-    // Tantalium Tube
-    G4double TubeRmin  = 49.6*mm;    G4double TubeRmax  =50*mm;    G4double TubeDz    =215.5*mm;
-    G4Tubs* sTube = new G4Tubs("Tube",				//name
+                                 360.*deg);	                	//dimensions
+        
+       
+    // Tantalum Heater
+    G4double TubeRmin  = 49.6*mm;    G4double TubeRmax  =50*mm;    G4double TubeDz    =169*mm;
+    G4Tubs* sTaTube = new G4Tubs("TaTube",				//name
                                TubeRmin/2,
                                TubeRmax/2,
                                TubeDz/2,
@@ -350,31 +468,43 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     
     
-    G4SubtractionSolid* ssubtraction1 = new G4SubtractionSolid("Tube-Transfer",
-                                                               sTube,
-                                                               sHole,
-                                                               aRot,
-                                                               transtransfer);
+    G4SubtractionSolid* sTaHeater = new G4SubtractionSolid("TaHeater",
+                                                               sTaTube,
+                                                               sThHole,
+                                                               tRot,
+                                                               G4ThreeVector(15/Sqrt3*mm,15*mm,21.5*mm));
     
-    G4LogicalVolume* lsubtraction1 = new G4LogicalVolume(ssubtraction1,			//shape
+    G4LogicalVolume* lTaHeater = new G4LogicalVolume(sTaHeater,			//shape
                                                          TubeMaterial,		//material
-                                                         "Tube-Transfer");		//name
+                                                         "TaHeater");		//name
     
-    new G4PVPlacement(0,			//no rotation
-                      G4ThreeVector(),		//at (0,0,0)
-                      lsubtraction1,			//logical volume
+    new G4PVPlacement(0,				//no rotation
+                      G4ThreeVector(0,0,-21.5),		//at (0,0,0)
+                      lTaHeater,			//logical volume
                       "Tube-Transfer",			//name
                       logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
+                      false,				//no boolean operation
                       0);				//copy number
     
     
     
     
-    // HOLE: GRAPHITE BOX - "SOLID" HOLE
+    // GRAPHITE BOX
     
+    // Graphite box hole
+
+    G4double GbHoleR = 10*mm; G4double GbHoleDz= 30*mm; 
+
+    G4Tubs* sGbHole = new G4Tubs("GbHole",				//name
+                                 0,
+				 GbHoleR/2,
+                                 GbHoleDz,
+                                 0.*deg,
+                                 360.*deg);	                	//dimensions
+            
     // Graphite Box
-    G4double BoxRmin  = 45*mm;    G4double BoxRmax  =49.5*mm;    G4double BoxDz    =208.5*mm;
+
+    G4double BoxRmin  = 45*mm;    G4double BoxRmax  =49.5*mm;    G4double BoxDz    =201.5*mm;
     G4Tubs* sBox = new G4Tubs("Box",				//name
                               BoxRmin/2,
                               BoxRmax/2,
@@ -383,26 +513,26 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                               360.*deg);	//dimensions
     
     
-    G4SubtractionSolid* ssubtraction2 = new G4SubtractionSolid("Box-Transfer",
+    G4SubtractionSolid* CBox = new G4SubtractionSolid("CBox",
                                                                sBox,
-                                                               sHole,
-                                                               aRot,
-                                                               transtransfer);
+                                                               sGbHole,
+                                                               tRot,
+                                                               G4ThreeVector(15/Sqrt3*mm,15*mm,6.27*mm));
     
-    G4LogicalVolume* lsubtraction2 = new G4LogicalVolume(ssubtraction2,			//shape
+    G4LogicalVolume* lCBox = new G4LogicalVolume(CBox,			//shape
                                                          BoxMaterial,		//material
-                                                         "Box-Transfer");		//name
+                                                         "CBox");		//name
     
     new G4PVPlacement(0,				//no rotation
-                      G4ThreeVector(),		//at (0,0,0)
-                      lsubtraction2,			//logical volume
-                      "Box-Transfer",			//name
+                      G4ThreeVector(0,0,-6.27),			//at (0,0,0)
+                      lCBox,			//logical volume
+                      "CBox",			//name
                       logicWorld,	       		//mother  volume
-                      false,			//no boolean operation
+                      false,				//no boolean operation
                       0);				//copy number
     
     
-    
+   
     
     // Detector
     
