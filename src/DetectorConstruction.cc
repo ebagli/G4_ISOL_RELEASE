@@ -481,7 +481,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     new G4PVPlacement(0,				//no rotation
                       G4ThreeVector(0,0,-21.5),		//at (0,0,0)
                       lTaHeater,			//logical volume
-                      "Tube-Transfer",			//name
+                      "Tantalum Heater",		//name
                       logicWorld,	       		//mother  volume
                       false,				//no boolean operation
                       0);				//copy number
@@ -556,7 +556,82 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                   0);			//copy number
 
     
-    
+
+
+//
+// VISUALIZATION ATTRIBUTES
+//  
+ 
+
+
+  	G4Colour white   (1.0, 1.0, 1.0);
+ 	G4Colour gray    (0.5, 0.5, 0.5);
+  	G4Colour black   (0.0, 0.0, 0.0);
+  	G4Colour red     (1.0, 0.0, 0.0);
+ 	G4Colour green   (0.0, 0.1, 0.0);
+  	G4Colour blue    (0.0, 0.0, 1.0);
+  	G4Colour cyan    (0.0, 0.1, 1.0);
+  	G4Colour magenta (1.0, 0.0, 1.0);
+ 	G4Colour yellow  (1.0, 1.0, 0.0);
+  	G4Colour orange  (1.0, 0.5, 0.0);
+   
+
+
+  	G4VisAttributes* worldVisAtt = new G4VisAttributes(white);
+  	worldVisAtt->SetVisibility(true);
+  	logicWorld->SetVisAttributes(worldVisAtt); 
+
+ 	G4VisAttributes* DiskVisAtt = new G4VisAttributes(yellow);
+ 	DiskVisAtt->SetVisibility(true);
+ 	lDisk->SetVisAttributes(DiskVisAtt);
+
+ 	G4VisAttributes* BoxVisAtt = new G4VisAttributes(black);
+ 	BoxVisAtt->SetVisibility(true);
+ 	lCBox->SetVisAttributes(BoxVisAtt);
+
+	G4VisAttributes* Dump12VisAtt = new G4VisAttributes(black);
+  	Dump12VisAtt->SetVisibility(true);
+  	lDump12->SetVisAttributes(Dump12VisAtt);
+
+  	G4VisAttributes* Dump3VisAtt = new G4VisAttributes(black);
+  	Dump3VisAtt->SetVisibility(true);
+  	lDump3->SetVisAttributes(Dump3VisAtt);
+
+  	G4VisAttributes* Dsp1VisAtt = new G4VisAttributes(black);
+  	Dsp1VisAtt->SetVisibility(true);
+  	lDsp1->SetVisAttributes(Dsp1VisAtt);
+
+  	G4VisAttributes* Dsp2VisAtt = new G4VisAttributes(black);
+  	Dsp2VisAtt->SetVisibility(true);
+  	lDsp2->SetVisAttributes(Dsp2VisAtt);
+
+  	G4VisAttributes* Dsp3VisAtt = new G4VisAttributes(black);
+  	Dsp3VisAtt->SetVisibility(true);
+  	lDsp3->SetVisAttributes(Dsp3VisAtt);
+
+  	G4VisAttributes* Wsp1VisAtt = new G4VisAttributes(black);
+  	Wsp1VisAtt->SetVisibility(true);
+  	lWsp1->SetVisAttributes(Wsp1VisAtt);
+
+  	G4VisAttributes* Wsp2VisAtt = new G4VisAttributes(black);
+  	Wsp2VisAtt->SetVisibility(true);
+  	lWsp2->SetVisAttributes(Wsp2VisAtt);
+
+  	G4VisAttributes* WindowVisAtt = new G4VisAttributes(black);
+  	WindowVisAtt->SetVisibility(true);
+  	lWindow->SetVisAttributes(WindowVisAtt);
+
+  	G4VisAttributes* TaHeaterVisAtt = new G4VisAttributes(gray);
+  	TaHeaterVisAtt->SetVisibility(true);
+  	lTaHeater->SetVisAttributes(TaHeaterVisAtt);
+ 
+  	G4VisAttributes* Transferline1VisAtt = new G4VisAttributes(gray);
+  	Transferline1VisAtt->SetVisibility(true);
+  	lTransferline1->SetVisAttributes(Transferline1VisAtt);
+  
+  	G4VisAttributes* Transferline2VisAtt = new G4VisAttributes(gray);
+  	Transferline2VisAtt->SetVisibility(true);
+  	lTransferline2->SetVisAttributes(Transferline2VisAtt);
     
     return physiWorld;
 
