@@ -30,6 +30,7 @@
 #include "EventAction.hh"
 #include "RunAction.hh"
 #include "G4GeneralParticleSource.hh"
+#include "StackingAction.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 UserActionInitialization::UserActionInitialization() {}
@@ -43,11 +44,13 @@ void UserActionInitialization::Build() const {
     SetUserAction(new PrimaryGeneratorAction());
     SetUserAction(new EventAction());
     SetUserAction(new RunAction());
+    SetUserAction(new StackingAction());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void UserActionInitialization::BuildForMaster() const {
+    SetUserAction(new RunAction());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

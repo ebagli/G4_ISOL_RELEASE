@@ -1,111 +1,56 @@
-// ------------------------------------------------------------
-// Brahim Apr 10th 2003 : Physics List source file for ganilN01
 //
-// This code is based on lN01PhysicsList.cc of li8N01
-//----------------------------------------------------
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+// $Id: PhysicsList.cc 66536 2012-12-19 14:32:36Z ihrivnac $
+//
+/// \file PhysicsList.cc
+/// \brief Implementation of the PhysicsList class
 
-// special header
 #include "PhysicsList.hh"
 
-// general header
-#include "G4ParticleTypes.hh"
+#include "G4DecayPhysics.hh"
+#include "G4DecayPhysics.hh"
+#include "G4RadioactiveDecayPhysics.hh"
+#include "EffusionPhysicsList.hh"
 
-// Include other needed files
-#include "globals.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleWithCuts.hh"
-#include "G4ProcessManager.hh"
-#include "G4ParticleTable.hh"
-#include "G4IonTable.hh"
-#include "G4Ions.hh"
-#include "G4IonConstructor.hh"
-#include "G4GenericIon.hh"
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+PhysicsList::PhysicsList():G4VModularPhysicsList(){
+  SetVerboseLevel(2);
 
-// Include the Effusion Process
-#include "EffusionProcess.hh"
-#include "DiffusionProcess.hh"
-
-// constructor
-PhysicsList::PhysicsList()
-{;}
-
-// destructor
-PhysicsList::~PhysicsList()
-{;}
-
-// member fuction 1 : particle definitions
-void PhysicsList::ConstructParticle()
-{
-    // In this method, static member functions should be called
-    // for all particles which you want to use.
-    // This ensures that objects of these particle types will be
-    // created in the program.
-    
-    // Define the alpha particle
-    // Define the electron and the neutron (needed in G4IonTable).
-    // Define the proton (needed to calculate ions cut values).
-    
-    //  nuclei
-    G4Alpha::AlphaDefinition();
-    
-    // the electron
-    G4Electron::ElectronDefinition();
-    
-    // the proton
-    G4Proton::ProtonDefinition();
-    
-    // the neutron
-    G4Neutron::NeutronDefinition();
-    
-    
-    G4GenericIon::GenericIonDefinition();
+  RegisterPhysics(new G4DecayPhysics(0));
+  RegisterPhysics(new G4RadioactiveDecayPhysics(1));
+  RegisterPhysics(new EffusionPhysicsList());
 }
 
-// member funtion 2 : process definition
-void PhysicsList::ConstructProcess()
-{
-    // Define transportation process
-    AddTransportation();
-    
-    // Add the Effusion Process
-    ConstructEffusion();
-    
-}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// Create and register the Effusion Process
+PhysicsList::~PhysicsList(){;}
 
-void PhysicsList::ConstructEffusion()
-{
-    // Get the process manager for alpha
-    G4ParticleDefinition* particle = G4GenericIon::GenericIonDefinition();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
-    
-    // Construct Effusion process for alpha
-    EffusionProcess* theEffusionProcess = new EffusionProcess();
-    DiffusionProcess* theDiffusionProcess = new DiffusionProcess();
-    
-    // Register the Effusion process to alpha's process manager
-    pmanager->AddDiscreteProcess(theEffusionProcess);
-    pmanager->AddDiscreteProcess(theDiffusionProcess);
-    
-}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-/**** Set Cuts ****/
-
-// member function 3 : cut settings
-void PhysicsList::SetCuts()
-{
-    // uppress error messages even in case e/gamma/proton do not exist
-    G4int temp = GetVerboseLevel();
-    SetVerboseLevel(0);
-    
-    //  " G4VUserPhysicsList::SetCutsWithDefault" method sets
-    //   the default cut value for all particle types
-    SetCutsWithDefault();
-    
-    // Retrieve verbose level
-    SetVerboseLevel(temp);  
-}
-
-
+void PhysicsList::SetCuts(){
+  G4VUserPhysicsList::SetCuts();
+}  

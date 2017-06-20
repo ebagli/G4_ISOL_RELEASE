@@ -23,12 +23,24 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+#include "EffusionTrackData.hh"
+#include "EffusionProcess.hh"
+#include "G4SystemOfUnits.hh"
 
-#ifndef Analysis_h
-#define Analysis_h 1
+EffusionTrackData::EffusionTrackData()
+: G4VAuxiliaryTrackInformation(),
+fTimeSticked(0.),
+fTotalTimeSticked(0.){;}
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-#endif
+EffusionTrackData::~EffusionTrackData(){;}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+void EffusionTrackData::Print() const {
+    G4cout << "Time Sticked [s]: " << fTimeSticked/CLHEP::s << G4endl;
+    G4cout << "Total Time Sticked [s]: " << fTotalTimeSticked/CLHEP::s << G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

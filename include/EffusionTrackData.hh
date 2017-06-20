@@ -23,12 +23,59 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+//
+// $Id: $
+//
+// --------------------------------------------------------------------
+// GEANT 4 class header file
+//
+// Class Description:
+//    Extends G4Track properties with information needed for the
+//    channeling biasing operator.
+//
+// ------------------ EffusionTrackData ------------------
+//
+// Author: M.Verderi (LLR), E. Bagli (INFN) April 2016
+//
+// --------------------------------------------------------------------
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#ifndef EffusionTrackData_hh
+#define EffusionTrackData_hh
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+class EffusionProcess;
+#include "G4VAuxiliaryTrackInformation.hh"
+
+class EffusionTrackData : public G4VAuxiliaryTrackInformation {
+    friend class EffusionProcess;
+    
+public:
+    EffusionTrackData();
+    ~EffusionTrackData();
+    
+    void Print() const;
+    
+private:
+    const EffusionProcess* fEffusionProcess;
+    
+public:
+    
+public:
+    void SetTimeSticked(G4double aDouble) {
+        fTimeSticked = aDouble;
+        fTotalTimeSticked += fTimeSticked;
+    };
+    G4double GetTimeSticked() {return fTimeSticked;};
+    
+    void SetTotalTimeSticked(G4double aDouble) {fTotalTimeSticked = aDouble;};
+    G4double GetTotalTimeSticked() {return fTotalTimeSticked;};
+    
+private:
+    // ----------
+    // Sticking Time
+    // ----------
+    G4double fTimeSticked;
+    G4double fTotalTimeSticked;
+
+};
 
 #endif

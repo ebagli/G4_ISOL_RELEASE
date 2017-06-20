@@ -3,6 +3,11 @@
 // * License and Disclaimer                                           *
 // *                                                                  *
 // * The  Geant4 software  is  copyright of the Copyright Holders  of *
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
 // * the Geant4 Collaboration.  It is provided  under  the terms  and *
 // * conditions of the Geant4 Software License,  included in the file *
 // * LICENSE and available at  http://cern.ch/geant4/license .  These *
@@ -22,13 +27,45 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
+// --------------------------------------------------------------
 //
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#ifndef DetectorConstructionMessenger_h
+#define DetectorConstructionMessenger_h 1
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+class DetectorConstruction;
+class G4UIdirectory;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithAIntAndUnit;
+class G4UIcmdWith3VectorAndUnit;
+class G4UIcmdWith3Vector;
+class G4UIcmdWithABool;
+class G4UIcmdWithAString;
+class G4UIcmdWithADouble;
+
+#include "G4UImessenger.hh"
+#include "globals.hh"
+
+class DetectorConstructionMessenger: public G4UImessenger
+{
+public:
+    DetectorConstructionMessenger(
+                                  DetectorConstruction* mpga);
+    ~DetectorConstructionMessenger();
+    
+    virtual void SetNewValue(G4UIcommand * command,G4String newValues);
+    virtual G4String GetCurrentValue(G4UIcommand * command);
+    
+private:
+    DetectorConstruction * fTarget;
+    
+    G4UIdirectory* fMyDetDirectory;
+    
+    G4UIcmdWithADoubleAndUnit* fTempCmd;
+    G4UIcmdWithADoubleAndUnit* fAdsTimeCmd;
+    G4UIcmdWithADoubleAndUnit* fDiffLengthCmd;
+};
 
 #endif
+
+

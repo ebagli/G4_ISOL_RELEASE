@@ -24,69 +24,58 @@
 // ********************************************************************
 //
 
-#include "RunAction.hh"
-
-#include "G4Run.hh"
-#include "G4RunManager.hh"
-#include "G4UnitsTable.hh"
-#include "G4SystemOfUnits.hh"
-
-#include "Analysis.hh"
+#include "StackingAction.hh"
+#include "G4Track.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction(): G4UserRunAction(){
-    G4RunManager::GetRunManager()->SetPrintProgress(1);
+StackingAction::StackingAction(){
+    fKillSecondary  = 1;
     
-    auto analysisManager = G4AnalysisManager::Instance();
-    G4cout << "Using " << analysisManager->GetType() << G4endl;
-    //analysisManager->SetNtupleMerging(true);
+    
+    // -- Define messengers:
+    fKillSecondaryMessenger =
+    new G4GenericMessenger(this, "/stacking/","Biasing control" );
+    
+    G4GenericMessenger::Command& killSecondaryCmd =
+    fKillSecondaryMessenger->DeclareProperty("killSecondary", fKillSecondary,
+                                             "Kill secondary particles yes/no." );
 
-    // Create directories
-    analysisManager->SetVerboseLevel(1);
-    
-    // Creating ntuple
-    analysisManager->CreateNtuple("detector","Detector hits");
-    analysisManager->CreateNtupleDColumn("t");
-    analysisManager->CreateNtupleDColumn("A");
-    analysisManager->CreateNtupleDColumn("Z");
-    analysisManager->FinishNtuple();
-
-    analysisManager->CreateNtuple("ucx","UCx hits");
-    analysisManager->CreateNtupleDColumn("t");
-    analysisManager->CreateNtupleDColumn("A");
-    analysisManager->CreateNtupleDColumn("Z");
-    analysisManager->CreateNtupleDColumn("AP");
-    analysisManager->CreateNtupleDColumn("AZ");
-    analysisManager->CreateNtupleDColumn("x");
-    analysisManager->CreateNtupleDColumn("y");
-    analysisManager->CreateNtupleDColumn("z");
-    analysisManager->FinishNtuple();
-    
-    
-    analysisManager->CreateH2("IT","Isotope Table", 120, 0.5, 120.5, 300, 0.5, 300.5);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::~RunAction(){
-    delete G4AnalysisManager::Instance();
-}
+StackingAction::~StackingAction(){;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::BeginOfRunAction(const G4Run* /*run*/){
-    auto analysisManager = G4AnalysisManager::Instance();
-    analysisManager->OpenFile("output");
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void RunAction::EndOfRunAction(const G4Run* /*run*/){
-    auto analysisManager = G4AnalysisManager::Instance();
-    analysisManager->Write();
-    analysisManager->CloseFile();
+G4ClassificationOfNewTrack
+StackingAction::ClassifyNewTrack(const G4Track* aTrack){
+    G4ClassificationOfNewTrack status = fUrgent;
     
+    if(fKillSecondary == 1){
+        if(aTrack->GetParticleDefinition()->GetParticleType()!="nucleus"){
+            status = fKill;
+            //G4cout << "DEAD  " << aTrack->GetTrackID() << " " << aTrack->GetParticleDefinition()->GetParticleType() << " " << aTrack->GetParticleDefinition()->GetParticleName() << G4endl;
+
+        }
+        else{
+            //G4cout << "ALIVE " << aTrack->GetTrackID() << " " << aTrack->GetParticleDefinition()->GetParticleType() << " " << aTrack->GetParticleDefinition()->GetParticleName() << G4endl;
+        }
+    }
+    else if(fKillSecondary == 2){
+        if(aTrack->GetTrackID()>1){
+            status = fKill;
+        }
+    }
+
+    return status;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void StackingAction::SetKillStatus(G4bool value){
+    fKillSecondary = value;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

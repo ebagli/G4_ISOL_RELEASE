@@ -46,8 +46,13 @@ class EventAction : public G4UserEventAction
 
   private:
     G4int fSD_ID;
+    G4int fUCx_ID;
     G4int fVerboseLevel;
-
+    G4bool bSaveAllUCx;
+    
+public:
+    void SetSaveAllUCx(G4bool aBool) {bSaveAllUCx=aBool;};
+    
   public:
     inline void SetVerbose(G4int val) { fVerboseLevel = val; }
     inline G4int GetVerbose() const { return fVerboseLevel; }

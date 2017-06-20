@@ -35,6 +35,9 @@
 #include "G4VUserDetectorConstruction.hh"
 
 #include "G4Material.hh"
+#include "G4ExtendedMaterial.hh"
+#include "G4Colour.hh"
+#include "DetectorConstructionMessenger.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -50,10 +53,37 @@ public:
 
 private:
     G4Material* WorldMaterial;
-    G4Material* TubeMaterial;
-    G4Material* BoxMaterial;
-    G4Material* DiskMaterial;
+    G4ExtendedMaterial* TubeMaterial;
+    G4ExtendedMaterial* BoxMaterial;
+    G4ExtendedMaterial* DiskMaterial;
 
+private:
+    void CreateTub(G4String,
+                   G4double,
+                   G4double,
+                   G4double,
+                   G4double,
+                   G4ExtendedMaterial*,
+                   G4LogicalVolume*,
+                   G4Colour);
+
+private:
+    G4double fTemperature;
+    G4double fAdsorptionTime;
+    G4double fDiffusionCoefficient;
+    
+public:
+    void SetTemperature(G4double aDouble) {fTemperature=aDouble;}
+    G4double GetTemperature() {return fTemperature;}
+
+    void SetAdsorptionTime(G4double aDouble) {fAdsorptionTime=aDouble;}
+    G4double GetAdsorptionTime() {return fAdsorptionTime;}
+    
+    void SetDiffusionCoefficient(G4double aDouble) {fDiffusionCoefficient=aDouble;}
+    G4double GetDiffusionCoefficient() {return fDiffusionCoefficient;}
+    
+private:
+    DetectorConstructionMessenger* fMessenger;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

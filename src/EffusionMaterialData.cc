@@ -24,11 +24,21 @@
 // ********************************************************************
 //
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#include "EffusionMaterialData.hh"
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 
-#endif
+EffusionMaterialData::EffusionMaterialData(const G4String& name):
+G4VMaterialExtension(name),
+theAdsorptionTime(0.),
+theDiffusionProbability(0.),
+theAdsorptionProbability(0.),
+theFullAdsorptionProbability(0.),
+theDiffusionCoefficient(0.){;}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+EffusionMaterialData::~EffusionMaterialData(){;}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

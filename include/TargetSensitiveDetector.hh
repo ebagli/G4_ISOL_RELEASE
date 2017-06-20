@@ -23,12 +23,40 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file analysis//include/TargetSensitiveDetector.hh
+/// \brief Definition of the TargetSensitiveDetector class
+//
+// $Id$
+// --------------------------------------------------------------
+//
+#ifndef TargetSensitiveDetector_h
+#define TargetSensitiveDetector_h 1
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#include "G4VSensitiveDetector.hh"
+#include "TargetSensitiveDetectorHit.hh"
+class G4Step;
+class G4HCofThisEvent;
+class G4TouchableHistory;
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+class TargetSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    TargetSensitiveDetector(G4String,G4int=0);
+    virtual ~TargetSensitiveDetector();
+    
+    virtual void Initialize(G4HCofThisEvent*);
+    virtual G4bool ProcessHits(G4Step*,G4TouchableHistory*);
+    virtual void EndOfEvent(G4HCofThisEvent*);
+    
+private:
+    TargetSensitiveDetectorHitsCollection* fHitsCollection;
+    G4int fHCID;
+    std::map<int,int> fAParent;
+    std::map<int,int> fZParent;
+    //std::map<int,double> fEnParent;
+    G4double fEnParent;
+    G4int detType;
+};
 
 #endif
+

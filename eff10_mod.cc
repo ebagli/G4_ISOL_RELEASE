@@ -4,7 +4,6 @@
 #include "G4UIterminal.hh"
 
 #include "DetectorConstruction.hh"
-#include "PhysicsList.hh"
 #include "UserActionInitialization.hh"
 
 #ifdef G4VIS_USE
@@ -16,6 +15,10 @@
 #endif
 
 
+#include "PhysicsList.hh"
+#include "QGSP_BERT.hh"
+#include "G4GenericBiasingPhysics.hh"
+
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -25,9 +28,24 @@ using namespace std;
 int main (int argc,char** argv) {
     
     G4MTRunManager* runManager = new G4MTRunManager;
+    runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores() - 2);
+    runManager->SetNumberOfThreads(1);
     
+    // Set mandatory initialization classes
     runManager->SetUserInitialization(new DetectorConstruction());
-    runManager->SetUserInitialization(new PhysicsList());
+    if(argc>2){
+        if(atoi(argv[2])==1){
+            runManager->SetUserInitialization(new QGSP_BERT());
+        }
+    }
+    else{
+        PhysicsList* physlist = new PhysicsList();
+        G4GenericBiasingPhysics* biasingPhysics = new G4GenericBiasingPhysics();
+        biasingPhysics->PhysicsBiasAllCharged();
+        physlist->RegisterPhysics(biasingPhysics);
+        runManager->SetUserInitialization(physlist);
+    }
+    
     runManager->SetUserInitialization(new UserActionInitialization());
     
     G4UImanager* UI = G4UImanager::GetUIpointer();

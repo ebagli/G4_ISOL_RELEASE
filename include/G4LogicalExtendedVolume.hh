@@ -23,70 +23,53 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+//
+// $Id: G4CrystalMaterial.hh 94016 2015-11-05 10:14:49Z gcosmo $
+//
 
-#include "RunAction.hh"
-
-#include "G4Run.hh"
-#include "G4RunManager.hh"
-#include "G4UnitsTable.hh"
-#include "G4SystemOfUnits.hh"
-
-#include "Analysis.hh"
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-RunAction::RunAction(): G4UserRunAction(){
-    G4RunManager::GetRunManager()->SetPrintProgress(1);
-    
-    auto analysisManager = G4AnalysisManager::Instance();
-    G4cout << "Using " << analysisManager->GetType() << G4endl;
-    //analysisManager->SetNtupleMerging(true);
-
-    // Create directories
-    analysisManager->SetVerboseLevel(1);
-    
-    // Creating ntuple
-    analysisManager->CreateNtuple("detector","Detector hits");
-    analysisManager->CreateNtupleDColumn("t");
-    analysisManager->CreateNtupleDColumn("A");
-    analysisManager->CreateNtupleDColumn("Z");
-    analysisManager->FinishNtuple();
-
-    analysisManager->CreateNtuple("ucx","UCx hits");
-    analysisManager->CreateNtupleDColumn("t");
-    analysisManager->CreateNtupleDColumn("A");
-    analysisManager->CreateNtupleDColumn("Z");
-    analysisManager->CreateNtupleDColumn("AP");
-    analysisManager->CreateNtupleDColumn("AZ");
-    analysisManager->CreateNtupleDColumn("x");
-    analysisManager->CreateNtupleDColumn("y");
-    analysisManager->CreateNtupleDColumn("z");
-    analysisManager->FinishNtuple();
-    
-    
-    analysisManager->CreateH2("IT","Isotope Table", 120, 0.5, 120.5, 300, 0.5, 300.5);
-}
+//---------------------------------------------------------------------------
+//
+// ClassName:   G4LogicalExtendedVolume
+//
+// Description: XXX
+//
+// Class description:
+//
+// XXX
+//
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::~RunAction(){
-    delete G4AnalysisManager::Instance();
-}
+// 21-04-16, created by E.Bagli
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::BeginOfRunAction(const G4Run* /*run*/){
-    auto analysisManager = G4AnalysisManager::Instance();
-    analysisManager->OpenFile("output");
-}
+#ifndef G4LogicalExtendedVolume_HH
+#define G4LogicalExtendedVolume_HH 1
+
+#include "G4LogicalVolume.hh"
+#include "G4ExtendedMaterial.hh"
+#include <algorithm>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::EndOfRunAction(const G4Run* /*run*/){
-    auto analysisManager = G4AnalysisManager::Instance();
-    analysisManager->Write();
-    analysisManager->CloseFile();
+class G4LogicalExtendedVolume : public G4LogicalVolume
+{
+public:
+    G4LogicalExtendedVolume(G4VSolid* pSolid,
+                           G4ExtendedMaterial* pMaterial,
+                           const G4String& name,
+                           G4FieldManager* pFieldMgr=0,
+                           G4VSensitiveDetector* pSDetector=0,
+                           G4UserLimits* pULimits=0,
+                           G4bool optimise=true);
+
+    ~G4LogicalExtendedVolume();
     
-}
+public:
+    virtual G4bool IsExtended() const {return true;};
+};
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#endif

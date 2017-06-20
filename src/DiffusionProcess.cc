@@ -1,14 +1,28 @@
-// ------------------------------------------------------------
-// Brahim Apr 10th 2003 : Diffusion Process source file for ganilN01
 //
-// This file is based on lN01DiffusionProcess.cc of li8N01
-//-------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////
-// Particle Boundary Process Class Implementation
-////////////////////////////////////////////////////////////////////////
-// File:        DiffusionProcess.cc
-// Description: Discrete Process -- Adsorption/Desorption of Particles
-////////////////////////////////////////////////////////////////////////
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
 
 #include "G4ios.hh"
 #include "DiffusionProcess.hh"
@@ -26,9 +40,12 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-DiffusionProcess::DiffusionProcess(const G4String& processName)
-: G4VDiscreteProcess(processName){
+DiffusionProcess::DiffusionProcess(const G4String& processName): G4VDiscreteProcess(processName){
     kCarTolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
+    fEffusionID = G4PhysicsModelCatalog::GetIndex("effusion");
+    if(fEffusionID == -1){
+        fEffusionID = G4PhysicsModelCatalog::Register("effusion");
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -37,66 +54,98 @@ DiffusionProcess::~DiffusionProcess(){}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+EffusionTrackData* DiffusionProcess::GetTrackData(const G4Track& aTrack){
+    EffusionTrackData* trackdata =
+    (EffusionTrackData*)(aTrack.GetAuxiliaryTrackInformation(fEffusionID));
+    if(trackdata == nullptr){
+        trackdata = new EffusionTrackData();
+        aTrack.SetAuxiliaryTrackInformation(fEffusionID,trackdata);
+    }
+    return trackdata;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 G4VParticleChange*
 DiffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step&)
 {
     aParticleChange.Initialize(aTrack);
+    
+    if(aTrack.GetTrackID()!=1) {
+        return &aParticleChange;
+    }
 
-    // Check StepLength
-    if(aTrack.GetStepLength()<=kCarTolerance/2){
+    if(aTrack.GetCurrentStepNumber()!=1) {
         return &aParticleChange;
     }
     
-    G4ThreeVector newDir = G4RandomDirection();
-    aParticleChange.ProposeMomentumDirection(newDir);
+    if(aTrack.GetStepLength()<=kCarTolerance/2){
+        return &aParticleChange;
+    }
+
+    EffusionMaterialData* matData = GetMatData(aTrack);
+    
+    if(matData == nullptr){
+        return &aParticleChange;
+    }
+
+    G4double diff_coeff0  = matData->GetDiffusionCoefficient();//cm2/s
+
+    if(diff_coeff0 == 0.){
+        return &aParticleChange;
+    }
+    
+    G4double R = 1.9872036E-3;// kcal/mol/K;
+    G4double activation_energy = 56.4;// kcal/mol/K;
+    G4double a = 1.E-11 * CLHEP::m;
+    G4double T = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial()->GetTemperature();
+    
+    G4double diff_coeff  = diff_coeff0 * exp(-activation_energy/R/T);//cm2/s
+
+    G4double tau = a * a / diff_coeff;
+    //G4cout << diff_coeff0 << " " << tau / CLHEP::s << G4endl;
+    
+    aParticleChange.ProposeGlobalTime(aTrack.GetGlobalTime() + tau ) ;
+    GetTrackData(aTrack)->SetTimeSticked(tau);
+    
+    //G4ThreeVector newDir = G4RandomDirection();
+    //aParticleChange.ProposeMomentumDirection(newDir);
     
     return &aParticleChange;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double DiffusionProcess::GetMeanFreePath(const G4Track& aTrack,
+G4double DiffusionProcess::GetMeanFreePath(const G4Track&,
                                           G4double ,
-                                          G4ForceCondition*)
+                                          G4ForceCondition* condition)
 {
-    G4double theMFPforPorous = 0.1 *CLHEP::mm;
-    G4double theMFPforCrystal = 0.1 *CLHEP::mm;
-    G4double thePorosity = 0.5;
-    G4bool aDiffusiveMaterial = false;
-
-    G4StepPoint* pPreStepPoint  = aTrack.GetStep()->GetPreStepPoint();
-    G4Material* aMaterialPre  = pPreStepPoint ->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial();
+    *condition = Forced;
     
+    /*
+    EffusionMaterialData* matData = GetMatData(aTrack);
     
-    if(aMaterialPre->GetName() == "Tantalum"){
-        theMFPforPorous = 0.1 *CLHEP::mm;
-        theMFPforCrystal = 0.1 *CLHEP::mm;
-        thePorosity = 0.0;
-        aDiffusiveMaterial = true;
-    }
-    
-    if(aMaterialPre->GetName() == "Graphite"){
-        theMFPforPorous = 0.1 *CLHEP::mm;
-        theMFPforCrystal = 0.1 *CLHEP::mm;
-        thePorosity = 0.0;
-        aDiffusiveMaterial = true;
+    if(matData == nullptr){
+        return DBL_MAX;
     }
 
-    if(aMaterialPre->GetName() == "Target"){
-        theMFPforPorous = 0.1 *CLHEP::mm;
-        theMFPforCrystal = 0.1 *CLHEP::mm;
-        thePorosity = 0.0;
-        aDiffusiveMaterial = true;
+    G4double R = 1.9872036E-3;// kcal/mol/K;
+    G4double activation_energy = 56.4;// kcal/mol/K;
+    G4double T = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial()->GetTemperature();
+    //G4double diff_coeff  = 7.943E-13 *CLHEP::cm2/CLHEP::s;//cm2/s
+    G4double diff_coeff  = matData->GetDiffusionCoefficient() * exp(-activation_energy/R/T);//cm2/s
+    G4double velocity = aTrack.GetVelocity();
+    G4double theMFP = 2. * diff_coeff / velocity;
+    
+    if(theMFP<=0.){
+        return DBL_MAX;
     }
+    return theMFP;
 
-    if(aDiffusiveMaterial == true){
-        if(G4UniformRand() < thePorosity){
-            return theMFPforPorous;
-        }
-        else{
-            return theMFPforCrystal;
-        }
-    }
+    */
+    
+    //G4cout << velocity/CLHEP::m*CLHEP::s << " " << theMFP/CLHEP::nanometer << G4endl;
+    //while(!getchar());
 
     return DBL_MAX;
 }

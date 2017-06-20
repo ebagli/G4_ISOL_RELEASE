@@ -1,0 +1,14 @@
+/run/initialize
+/gps/particle ion
+/gps/ion 35 90
+
+/gps/time 0.0 ns
+/gps/energy 0.29383 eV
+/gps/ang/type iso
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/halfz 0.8 mm
+/gps/pos/radius 20 mm
+/gps/pos/centre  0.  0. -32.52 mm
+/run/beamOn 1000

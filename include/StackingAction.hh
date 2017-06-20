@@ -22,13 +22,38 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
+// --------------------------------------------------------------
 //
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#ifndef StackingAction_h
+#define StackingAction_h 1
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+#include "G4UserStackingAction.hh"
+#include "globals.hh"
+#include "G4GenericMessenger.hh"
+
+class G4Track;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+class StackingAction : public G4UserStackingAction
+{
+public:
+
+  StackingAction();
+  virtual ~StackingAction();
+   
+  void SetKillStatus(G4bool value);
+    
+  G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
+    
+private:
+    G4int fKillSecondary;
+    G4GenericMessenger*  fKillSecondaryMessenger;
+
+};
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
+

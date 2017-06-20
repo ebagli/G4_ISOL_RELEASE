@@ -41,13 +41,16 @@
 #include "G4SystemOfUnits.hh"
 
 #include "SensitiveDetectorHit.hh"
+#include "TargetSensitiveDetectorHit.hh"
 
 #include "Analysis.hh"
 
 EventAction::EventAction()
 {
     fSD_ID = -1;
+    fUCx_ID = -1;
     fVerboseLevel = 0;
+    bSaveAllUCx = true;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -70,15 +73,26 @@ void EventAction::EndOfEventAction(const G4Event* evt){
             fSD_ID = SDman->GetCollectionID(sdName="telescope/collection");
         }
     }
-    
+    if(fUCx_ID == -1) {
+        G4String sdName;
+        if(SDman->FindSensitiveDetector(sdName="ucx",0)){
+            fUCx_ID = SDman->GetCollectionID(sdName="ucx/collection");
+        }
+    }
+
     G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
-    SensitiveDetectorHitsCollection* fSD = 0;
+    TargetSensitiveDetectorHitsCollection* fSD = 0;
+    TargetSensitiveDetectorHitsCollection* fUCx = 0;
 
     if(HCE)
     {
         if(fSD_ID != -1){
             G4VHitsCollection* aHCSD = HCE->GetHC(fSD_ID);
-            fSD = (SensitiveDetectorHitsCollection*)(aHCSD);
+            fSD = (TargetSensitiveDetectorHitsCollection*)(aHCSD);
+        }
+        if(fUCx_ID != -1){
+            G4VHitsCollection* aHCUCx = HCE->GetHC(fUCx_ID);
+            fUCx = (TargetSensitiveDetectorHitsCollection*)(aHCUCx);
         }
     }
 
@@ -89,12 +103,37 @@ void EventAction::EndOfEventAction(const G4Event* evt){
         int n_hit_sd = fSD->entries();
         for(int i1=0;i1<n_hit_sd;i1++)
         {
-            SensitiveDetectorHit* aHit = (*fSD)[i1];
-            analysisManager->FillNtupleDColumn(0,0, aHit->GetTime()/CLHEP::ns);
+            TargetSensitiveDetectorHit* aHit = (*fSD)[i1];
+            analysisManager->FillNtupleDColumn(0,0, aHit->GetTime()/CLHEP::s);
+            analysisManager->FillNtupleDColumn(0,1, aHit->GetA());
+            analysisManager->FillNtupleDColumn(0,2, aHit->GetZ());
             analysisManager->AddNtupleRow(0);
+        }
+    }
+
+    if(fUCx)
+    {
+        int n_hit_sd = fUCx->entries();
+        for(int i1=0;i1<n_hit_sd;i1++)
+        {
+            TargetSensitiveDetectorHit* aHit = (*fUCx)[i1];
+            if(bSaveAllUCx){
+                analysisManager->FillNtupleDColumn(1,0, aHit->GetTime()/CLHEP::s);
+                analysisManager->FillNtupleDColumn(1,1, aHit->GetA());
+                analysisManager->FillNtupleDColumn(1,2, aHit->GetZ());
+                analysisManager->FillNtupleDColumn(1,3, aHit->GetAP());
+                analysisManager->FillNtupleDColumn(1,4, aHit->GetZP());
+                analysisManager->FillNtupleDColumn(1,5, aHit->GetWorldPos().x());
+                analysisManager->FillNtupleDColumn(1,6, aHit->GetWorldPos().y());
+                analysisManager->FillNtupleDColumn(1,7, aHit->GetWorldPos().z());
+                analysisManager->AddNtupleRow(1);
+            }
+            
+            analysisManager->FillH2(0,aHit->GetZ(),aHit->GetA());
             
         }
     }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
