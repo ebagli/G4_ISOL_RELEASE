@@ -78,6 +78,12 @@ EffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 {
     aParticleChange.Initialize(aTrack);
 
+    if(aTrack.GetCurrentStepNumber()>2000000) {
+        aParticleChange.ProposeEnergy(0.);
+        aParticleChange.ProposeTrackStatus(fStopAndKill);
+        return &aParticleChange;
+    }
+    
     // Check Boundaries
     G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint();
     G4StepPoint* pPostStepPoint = aStep.GetPostStepPoint();
@@ -132,8 +138,8 @@ EffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         
         // Get a random kinetic energy following the Maxwell-Boltzmann distribution
         // theSampledKineticEnergy is computed by the SampleMaxwellBoltzmannKineticEnergy function
-        SampleMaxwellBoltzmannKineticEnergy(aTrack);
-        aParticleChange.ProposeEnergy(theSampledKineticEnergy);
+        //SampleMaxwellBoltzmannKineticEnergy(aTrack);
+        //aParticleChange.ProposeEnergy(theSampledKineticEnergy);
 
         // Compute the outgoing particle direction following the cosine-law (Lambertian) distribution
         // theGlobalNormal is computed by the SampleLambertianDirection() function

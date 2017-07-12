@@ -76,7 +76,8 @@
 DetectorConstruction::DetectorConstruction():
 fTemperature(1600.*CLHEP::kelvin),
 fAdsorptionTime(0. * CLHEP::s),
-fDiffusionCoefficient(0. * CLHEP::m)
+fDiffusionCoefficient(0. * CLHEP::m),
+fPorousDiffusionCoefficient(0. * CLHEP::m)
 {
     fMessenger = new DetectorConstructionMessenger(this);
 }
@@ -117,6 +118,7 @@ void DetectorConstruction::DefineMaterials(){
     GraphiteEffusionData->SetAdsorptionProbability(adsorption_probability);
     GraphiteEffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
     GraphiteEffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
+    GraphiteEffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
 
     
 	//Uranium carbide
@@ -150,7 +152,8 @@ void DetectorConstruction::DefineMaterials(){
     UC4EffusionData->SetAdsorptionProbability(adsorption_probability);
     UC4EffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
     UC4EffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
-    
+    UC4EffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
+
 	//Tantalum
     G4Material* TantalumBase = new G4Material("TantalumBase",
                                               73., //z
@@ -175,6 +178,7 @@ void DetectorConstruction::DefineMaterials(){
     TantalumEffusionData->SetAdsorptionProbability(adsorption_probability);
     TantalumEffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
     TantalumEffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
+    TantalumEffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
 
     
 	//

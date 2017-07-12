@@ -69,6 +69,11 @@ public:
     G4double GetDiffusionCoefficient(){
         return theDiffusionCoefficient;};
 
+    void SetPorousDiffusionCoefficient(G4double aDouble){
+        thePorousDiffusionCoefficient=aDouble;};
+    G4double GetPorousDiffusionCoefficient(){
+        return thePorousDiffusionCoefficient;};
+    
 private:
     // theAdsorptionTime is the average sticking time on the surface
     G4double theAdsorptionTime;
@@ -87,18 +92,11 @@ private:
     // range [0,1] relative to the adsorption probability
     G4double theFullAdsorptionProbability;
 
-    // theDiffusionCoefficient is the diffusion coefficient of the material cm2/s
+    // theDiffusionCoefficient is the diffusion coefficient of the material in the molecule cm2/s
     G4double theDiffusionCoefficient;
+
+    // thePorousDiffusionCoefficient is the diffusion coefficient of the material in the porous cm2/s
+    G4double thePorousDiffusionCoefficient;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

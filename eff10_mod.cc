@@ -29,7 +29,6 @@ int main (int argc,char** argv) {
     
     G4MTRunManager* runManager = new G4MTRunManager;
     runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores() - 2);
-    runManager->SetNumberOfThreads(1);
     
     // Set mandatory initialization classes
     runManager->SetUserInitialization(new DetectorConstruction());

@@ -71,6 +71,7 @@ private:
     G4double fTemperature;
     G4double fAdsorptionTime;
     G4double fDiffusionCoefficient;
+    G4double fPorousDiffusionCoefficient;
     
 public:
     void SetTemperature(G4double aDouble) {fTemperature=aDouble;}
@@ -82,6 +83,9 @@ public:
     void SetDiffusionCoefficient(G4double aDouble) {fDiffusionCoefficient=aDouble;}
     G4double GetDiffusionCoefficient() {return fDiffusionCoefficient;}
     
+    void SetPorousDiffusionCoefficient(G4double aDouble) {fPorousDiffusionCoefficient=aDouble;}
+    G4double GetPorousDiffusionCoefficient() {return fPorousDiffusionCoefficient;}
+
 private:
     DetectorConstructionMessenger* fMessenger;
 };

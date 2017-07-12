@@ -64,6 +64,7 @@ private:
     G4UIcmdWithADoubleAndUnit* fTempCmd;
     G4UIcmdWithADoubleAndUnit* fAdsTimeCmd;
     G4UIcmdWithADoubleAndUnit* fDiffLengthCmd;
+    G4UIcmdWithADoubleAndUnit* fPDiffLengthCmd;
 };
 
 #endif

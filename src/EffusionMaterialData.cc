@@ -35,7 +35,8 @@ theAdsorptionTime(0.),
 theDiffusionProbability(0.),
 theAdsorptionProbability(0.),
 theFullAdsorptionProbability(0.),
-theDiffusionCoefficient(0.){;}
+theDiffusionCoefficient(0.),
+thePorousDiffusionCoefficient(0.){;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
