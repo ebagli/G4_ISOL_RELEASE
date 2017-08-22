@@ -51,29 +51,6 @@ DetectorConstructionMessenger(
                                true);
     fTempCmd->SetDefaultValue(273.);
     fTempCmd->SetDefaultUnit("kelvin");
-
-    fAdsTimeCmd = new G4UIcmdWithADoubleAndUnit("/det/setAdsorptionTime",this);
-    fAdsTimeCmd->SetGuidance("Set adsorpion time.");
-    fAdsTimeCmd->SetParameterName("adstime",
-                               true);
-    fAdsTimeCmd->SetDefaultValue(0.);
-    fAdsTimeCmd->SetDefaultUnit("second");
-
-
-    fDiffLengthCmd = new G4UIcmdWithADoubleAndUnit("/det/setDiffusionCoefficient",this);
-    fDiffLengthCmd->SetGuidance("Set diffusion coefficient [cm2/s]");
-    fDiffLengthCmd->SetParameterName("diffcoeff",
-                                  true);
-    fDiffLengthCmd->SetDefaultValue(0.);
-    fDiffLengthCmd->SetDefaultUnit("cm2");
-
-
-    fPDiffLengthCmd = new G4UIcmdWithADoubleAndUnit("/det/setPorousDiffusionCoefficient",this);
-    fPDiffLengthCmd->SetGuidance("Set porous diffusion coefficient [cm2/s]");
-    fPDiffLengthCmd->SetParameterName("porousdiffcoeff",
-                                     true);
-    fPDiffLengthCmd->SetDefaultValue(0.);
-    fPDiffLengthCmd->SetDefaultUnit("cm2");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -81,9 +58,6 @@ DetectorConstructionMessenger(
 DetectorConstructionMessenger::
 ~DetectorConstructionMessenger(){
     delete fTempCmd;
-    delete fAdsTimeCmd;
-    delete fDiffLengthCmd;
-    delete fPDiffLengthCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -93,16 +67,6 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand *command,
     if(command==fTempCmd ){
         fTarget->SetTemperature(fTempCmd->GetNewDoubleValue(newValue));
     }
-    if(command==fAdsTimeCmd ){
-        fTarget->SetAdsorptionTime(fAdsTimeCmd->GetNewDoubleValue(newValue));
-    }
-    if(command==fDiffLengthCmd ){
-        fTarget->SetDiffusionCoefficient(fDiffLengthCmd->GetNewDoubleValue(newValue) / CLHEP::second);
-    }
-    if(command==fPDiffLengthCmd ){
-        fTarget->SetPorousDiffusionCoefficient(fPDiffLengthCmd->GetNewDoubleValue(newValue) / CLHEP::second);
-    }
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -113,16 +77,7 @@ G4String DetectorConstructionMessenger::GetCurrentValue(G4UIcommand * command){
     if( command==fTempCmd ){
         cv = fTempCmd->ConvertToString(fTarget->GetTemperature(),"kelvin");
     }
-    if( command==fAdsTimeCmd ){
-        cv = fAdsTimeCmd->ConvertToString(fTarget->GetAdsorptionTime(),"second");
-    }
-    if( command==fDiffLengthCmd ){
-        cv = fDiffLengthCmd->ConvertToString(fTarget->GetDiffusionCoefficient(),"m");
-    }
-    if( command==fPDiffLengthCmd ){
-        cv = fPDiffLengthCmd->ConvertToString(fTarget->GetPorousDiffusionCoefficient(),"m");
-    }
-
+    
     return cv;
 }
 

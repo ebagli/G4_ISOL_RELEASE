@@ -35,8 +35,11 @@
 #include "G4VParticleChange.hh"
 
 #include "G4VDiscreteProcess.hh"
-#include "EffusionMaterialData.hh"
-#include "G4ExtendedMaterial.hh"
+#include "EffusionTrackData.hh"
+
+#include <unordered_map>
+
+#define bDONT_USE_DIFFUSION 0
 
 class DiffusionProcess : public G4VDiscreteProcess{
     
@@ -53,22 +56,18 @@ public:
         
 private:
     G4double kCarTolerance;
-    
-private:
-    EffusionMaterialData* GetMatData(const G4Track& aTrack){
-        G4LogicalVolume* aLV = aTrack.GetVolume()->GetLogicalVolume();
-        if(aLV->IsExtended() == true){
-            G4ExtendedMaterial* aEM = (G4ExtendedMaterial*) aLV->GetMaterial();
-            return (EffusionMaterialData*) aEM->RetrieveExtension("effusion");
-        }
-        else{
-            return nullptr;
-        }
-    }
+    G4double GetDiffusionCoefficient(const G4Track& aTrack);
+    G4double GetPorousDiffusionCoefficient(const G4Track& aTrack);
     
 private:
     G4int fEffusionID;
     EffusionTrackData* GetTrackData(const G4Track&);
+    
+private:
+    std::unordered_map<int, double> theDiffusionCoefficientMap;
+    std::unordered_map<int, double> thePorousDiffusionCoefficientMap;
+    
+    int GetIndex(int partZ, std::string matName) {return std::hash<std::string>()(matName) + partZ;};
 };
 
 #endif /* DiffusionProcess_h */

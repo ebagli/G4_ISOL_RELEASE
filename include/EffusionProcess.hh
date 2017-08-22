@@ -35,8 +35,10 @@
 #include "G4VParticleChange.hh"
 
 #include "G4VDiscreteProcess.hh"
-#include "EffusionMaterialData.hh"
-#include "G4ExtendedMaterial.hh"
+
+#include "EffusionTrackData.hh"
+
+#include <unordered_map>
 
 class EffusionProcess : public G4VDiscreteProcess{
     
@@ -71,24 +73,21 @@ private:
     G4ThreeVector theGlobalNormal;
     G4ThreeVector theGlobalPoint;
     G4bool validLocalNorm;
-    
-private:
-    EffusionMaterialData* GetMatData(const G4Track& aTrack){
-        G4LogicalVolume* aLV = aTrack.GetNextVolume()->GetLogicalVolume();
-        if(aLV->IsExtended() == true){
-            G4ExtendedMaterial* aEM = (G4ExtendedMaterial*) aLV->GetMaterial();
-            return (EffusionMaterialData*) aEM->RetrieveExtension("effusion");
-        }
-        else{
-            return nullptr;
-        }
-    }
-    
+        
 private:
     G4int fEffusionID;
     EffusionTrackData* GetTrackData(const G4Track&);
 
+private:
+    G4double GetDiffusionProbability(const G4Track&);
+    G4double GetAdsorptionProbability(const G4Track&);
+    G4double GetAdsorptionTime(const G4Track&);
+    G4double GetFullAdsorptionProbability(const G4Track&);
+    
+private:
+    std::unordered_map<int, double> theAdsorptionTimeMap;
 
+    int GetIndex(int partZ, int matA) {return partZ*1000 + matA;};
 };
 
 #endif /* EffusionProcess_h */

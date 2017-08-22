@@ -46,6 +46,19 @@ DiffusionProcess::DiffusionProcess(const G4String& processName): G4VDiscreteProc
     if(fEffusionID == -1){
         fEffusionID = G4PhysicsModelCatalog::Register("effusion");
     }
+    /*
+    for(auto i = 0;i< 100;i++){
+        theDiffusionCoefficientMap.insert({GetIndex(i,"TVac"),0.});
+        thePorousDiffusionCoefficientMap.insert({GetIndex(i,"TVac"),1.E14 * CLHEP::cm2/CLHEP::second});
+    }
+    */
+    
+    theDiffusionCoefficientMap.insert({GetIndex(37,"UC4"),7.943E-13 * CLHEP::cm2/CLHEP::second});
+    thePorousDiffusionCoefficientMap.insert({GetIndex(37,"UC4"),1.E10 * CLHEP::cm2/CLHEP::second});
+
+    theDiffusionCoefficientMap.insert({GetIndex(36,"UC4"),7.943E-13 * CLHEP::cm2/CLHEP::second});
+    thePorousDiffusionCoefficientMap.insert({GetIndex(36,"UC4"),1.E10 * CLHEP::cm2/CLHEP::second});
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -70,25 +83,26 @@ G4VParticleChange*
 DiffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step&)
 {
     aParticleChange.Initialize(aTrack);
-    EffusionMaterialData* matData = GetMatData(aTrack);
-    if(matData == nullptr){
-        return &aParticleChange;
-    }
 
     if(aTrack.GetTrackID()==1 && aTrack.GetCurrentStepNumber()!=1) {
-        G4double diff_coeff0  = matData->GetDiffusionCoefficient();//cm2/s
-        
+        G4double diff_coeff0  = GetDiffusionCoefficient(aTrack);//cm2/s
+
         if(diff_coeff0 == 0.){
             return &aParticleChange;
         }
         
         G4double R = 1.9872036E-3;// kcal/mol/K;
         G4double activation_energy = 56.4;// kcal/mol/K;
-        G4double a = 1.E-11 * CLHEP::m;
+        G4double a_mean = 1.E-2 * CLHEP::nanometer;
+        G4double a_sigma = 1.E-3 * CLHEP::nanometer;
+        G4double a = G4RandGauss::shoot(a_mean,a_sigma);
+
         G4double T = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial()->GetTemperature();
         
         G4double diff_coeff  = diff_coeff0 * exp(-activation_energy/R/T);//cm2/s
         
+        // exact solution Fick's equation for a sphere of radius "a"
+        // Fujioka, NIM 186, 409 (1981)
         G4double tau = a * a / diff_coeff;
         
         aParticleChange.ProposeGlobalTime(aTrack.GetGlobalTime() + tau ) ;
@@ -111,33 +125,73 @@ G4double DiffusionProcess::GetMeanFreePath(const G4Track& aTrack,
                                           G4double ,
                                           G4ForceCondition* condition)
 {
-    G4bool bDONT_USE_DIFFUSION = true;
-    
     if(bDONT_USE_DIFFUSION==true){
         *condition = Forced;
         return DBL_MAX;
     }
     
-    G4double mimMFP = 0.001 * CLHEP::mm;
-
-    EffusionMaterialData* matData = GetMatData(aTrack);
+    G4double theMFP = DBL_MAX;
     
-    if(matData == nullptr){
-        return DBL_MAX;
+    G4double diff_coeff0  = GetPorousDiffusionCoefficient(aTrack);
+    if(diff_coeff0 == DBL_MAX){
+        theMFP = DBL_MAX;
     }
-
-    G4double R = 1.9872036E-3;// kcal/mol/K;
-    G4double activation_energy = 56.4;// kcal/mol/K;
-    G4double T = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial()->GetTemperature();
-    G4double diff_coeff  = matData->GetPorousDiffusionCoefficient() * exp(-activation_energy/R/T);//cm2/s
-    G4double velocity = aTrack.GetVelocity();
-    G4double theMFP = 2. * diff_coeff / velocity;
-
-    if(theMFP<=mimMFP){
-        return mimMFP;
+    else{
+        // mean free path from diffusion coefficient
+        G4double R = 1.9872036E-3;// kcal/mol/K;
+        G4double activation_energy = 56.4;// kcal/mol/K;
+        G4double T = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial()->GetTemperature();
+        G4double diff_coeff  = diff_coeff0 * exp(-activation_energy/R/T);//cm2/s
+        G4double velocity = aTrack.GetVelocity();
+        theMFP = 2. * diff_coeff / velocity;
     }
+    
+    G4double minMFP = 0.001 * CLHEP::mm;
+    if(theMFP < minMFP){
+        theMFP =  minMFP;
+    }
+    
     return theMFP;
 
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double DiffusionProcess::GetDiffusionCoefficient(const G4Track& aTrack)
+{
+    G4Material* mat = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial();
+    const std::string matName = mat->GetName();
+    int partZ = int(std::round(aTrack.GetDefinition()->GetPDGCharge()));
+
+    std::unordered_map<int, double>::iterator it =
+        theDiffusionCoefficientMap.find(GetIndex(partZ,matName));
+    
+    G4double diffusionCoefficient = 0.;
+    
+    if (it != theDiffusionCoefficientMap.end()){
+        diffusionCoefficient = it->second;
+    }
+
+    return diffusionCoefficient;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double DiffusionProcess::GetPorousDiffusionCoefficient(const G4Track& aTrack)
+{
+    G4Material* mat = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial();
+    const std::string matName = mat->GetName();
+    int partZ = int(std::round(aTrack.GetDefinition()->GetPDGCharge()));
+    
+    std::unordered_map<int, double>::iterator it =
+    thePorousDiffusionCoefficientMap.find(GetIndex(partZ,matName));
+    
+    G4double porousDiffusionCoefficient = DBL_MAX;
+    
+    if (it != thePorousDiffusionCoefficientMap.end()){
+        porousDiffusionCoefficient = it->second;
+    }
+    
+    return porousDiffusionCoefficient;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

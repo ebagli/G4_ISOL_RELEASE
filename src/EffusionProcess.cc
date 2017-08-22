@@ -53,6 +53,10 @@ validLocalNorm(false){
     if(fEffusionID == -1){
         fEffusionID = G4PhysicsModelCatalog::Register("effusion");
     }
+    
+    theAdsorptionTimeMap.insert({GetIndex(37,73),100*CLHEP::nanosecond});
+    theAdsorptionTimeMap.insert({GetIndex(37,6),4420*CLHEP::nanosecond});
+    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -78,7 +82,12 @@ EffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 {
     aParticleChange.Initialize(aTrack);
 
-    if(aTrack.GetCurrentStepNumber()>2000000) {
+    if(aTrack.GetGlobalTime() > 10. * CLHEP::second) {
+        G4Exception("EffusionProcess::PostStepDoIt",
+                    "eff0001",
+                    JustWarning,
+                    "Particle killed after 10 second.");
+        
         aParticleChange.ProposeEnergy(0.);
         aParticleChange.ProposeTrackStatus(fStopAndKill);
         return &aParticleChange;
@@ -105,32 +114,27 @@ EffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         return &aParticleChange;
     }
 
-    
     ///////////////////////////////////////////////////////////////////////////////////
-    
-    EffusionMaterialData* matData = GetMatData(aTrack);
-    
-    if(matData == nullptr){
+    if(pPostStepPoint->GetPhysicalVolume()->GetMotherLogical() == 0){
         return &aParticleChange;
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////
     
     // If the particle is diffused into the material, it continues its motion
-    if(G4UniformRand() < matData->GetDiffusionProbability()){
+    if(G4UniformRand() < GetDiffusionProbability(aTrack)){
         return &aParticleChange;
     }
     
     // If the particle is adsorbed, the average adsorption time is summed to the
     // particle global time, i.e., the particle re-start to travel after a time
     // equal to the average adsorption time
-    if(G4UniformRand() < matData->GetAdsorptionProbability()){
+    if(G4UniformRand() < GetAdsorptionProbability(aTrack)){
         
-        aParticleChange.ProposeGlobalTime(aTrack.GetGlobalTime() + matData->GetAdsorptionTime() ) ;
-        GetTrackData(aTrack)->SetTimeSticked(matData->GetAdsorptionTime());
+        G4double adsorptionTime = GetAdsorptionTime(aTrack);
+        aParticleChange.ProposeGlobalTime(aTrack.GetGlobalTime() + adsorptionTime ) ;
+        GetTrackData(aTrack)->SetTimeSticked(adsorptionTime);
 
         // If the particle is adsorbed and not released, it is killed
-        if(G4UniformRand() < matData->GetFullAdsorptionProbability()){
+        if(G4UniformRand() < GetFullAdsorptionProbability(aTrack)){
             aParticleChange.ProposeEnergy(0.);
             aParticleChange.ProposeTrackStatus(fStopAndKill);
             return &aParticleChange;
@@ -208,6 +212,51 @@ G4double EffusionProcess::GetMeanFreePath(const G4Track&,
 {
     *condition = Forced;
     return DBL_MAX;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double EffusionProcess::GetDiffusionProbability(const G4Track&)
+{
+    return 0.;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double EffusionProcess::GetAdsorptionProbability(const G4Track&)
+{
+    return 1.;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double EffusionProcess::GetAdsorptionTime(const G4Track& aTrack)
+{
+    G4Material* mat = aTrack.GetVolume()->GetLogicalVolume()->GetMaterial();
+
+    const G4ElementVector* theElementVector = mat->GetElementVector();
+    const G4Element* element = (*theElementVector)[0] ;
+  
+    int matZ  = int(std::round(element->GetZ()));
+    int partZ = int(std::round(aTrack.GetDefinition()->GetPDGCharge()));
+    
+    std::unordered_map<int, double>::iterator it =
+        theAdsorptionTimeMap.find(GetIndex(partZ,matZ));
+    
+    G4double adsorptionTime = 0.;
+    
+    if (it != theAdsorptionTimeMap.end()){
+        adsorptionTime = it->second;
+    }
+    
+    return adsorptionTime;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double EffusionProcess::GetFullAdsorptionProbability(const G4Track&)
+{
+    return 0.;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

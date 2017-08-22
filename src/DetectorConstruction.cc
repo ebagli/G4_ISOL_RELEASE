@@ -64,20 +64,13 @@
 #include "SensitiveDetector.hh"
 #include "TargetSensitiveDetector.hh"
 
-#include "G4ExtendedMaterial.hh"
-#include "G4LogicalExtendedVolume.hh"
-
-#include "EffusionMaterialData.hh"
 #include "EffusionOptrMultiParticleChangeCrossSection.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction():
-fTemperature(1600.*CLHEP::kelvin),
-fAdsorptionTime(0. * CLHEP::s),
-fDiffusionCoefficient(0. * CLHEP::m),
-fPorousDiffusionCoefficient(0. * CLHEP::m)
+fTemperature(1600.*CLHEP::kelvin)
 {
     fMessenger = new DetectorConstructionMessenger(this);
 }
@@ -91,95 +84,35 @@ DetectorConstruction::~DetectorConstruction(){}
 void DetectorConstruction::DefineMaterials(){
     
 	// Elements
-    G4Material* GraphiteBase = new G4Material("GraphiteBase",
-                                              6., //z
-                                              12.011*g/mole, //a
-                                              1.9*g/cm3, //density
-                                              kStateSolid, //state,
-                                              fTemperature); //fTemperature
-    
-    G4ExtendedMaterial* Graphite = new G4ExtendedMaterial("Graphite",GraphiteBase);
-    Graphite->RegisterExtension(std::unique_ptr<EffusionMaterialData>(new EffusionMaterialData("effusion")));
-    EffusionMaterialData* GraphiteEffusionData = (EffusionMaterialData*)Graphite->RetrieveExtension("effusion");
-
-    
-    G4double diffusion_probability = 0.;
-    G4double adsorption_probability = 1.;
-    G4double full_adsorption_probability = 0.;
-    
-    /*
-    GraphiteEffusionData->SetAdsorptionTime(+4420*CLHEP::ns);
-    GraphiteEffusionData->SetDiffusionProbability(0.);
-    GraphiteEffusionData->SetAdsorptionProbability(1.);
-    GraphiteEffusionData->SetFullAdsorptionProbability(0.);
-    */
-    GraphiteEffusionData->SetAdsorptionTime(fAdsorptionTime);
-    GraphiteEffusionData->SetDiffusionProbability(diffusion_probability);
-    GraphiteEffusionData->SetAdsorptionProbability(adsorption_probability);
-    GraphiteEffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
-    GraphiteEffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
-    GraphiteEffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
-
+    G4Material* Graphite = new G4Material("Graphite",
+                                          6., //z
+                                          12.011*g/mole, //a
+                                          1.9*g/cm3, //density
+                                          kStateSolid, //state,
+                                          fTemperature); //fTemperature
     
 	//Uranium carbide
     G4Element* C = G4NistManager::Instance()->FindOrBuildElement("C");
     G4Element* U = G4NistManager::Instance()->FindOrBuildElement("U");
 
-    G4Material* UC4Base = new G4Material("UC4Base",
-                                         4.*g/cm3, //density
-                                         2, //nComponents
-                                         kStateSolid, //state,
-                                         fTemperature); //fTemperature
-    UC4Base->AddElement(C,
+    G4Material* UC4 = new G4Material("UC4",
+                                     4.*g/cm3, //density
+                                     2, //nComponents
+                                     kStateSolid, //state,
+                                     fTemperature); //fTemperature
+    UC4->AddElement(C,
                         4); //natoms
-    UC4Base->AddElement(U,
+    UC4->AddElement(U,
                         1); //natoms
 
-    G4ExtendedMaterial* UC4 = new G4ExtendedMaterial("UC4",UC4Base);
-    
-    
-    UC4->RegisterExtension(std::unique_ptr<EffusionMaterialData>(new EffusionMaterialData("effusion")));
-    EffusionMaterialData* UC4EffusionData = (EffusionMaterialData*)UC4->RetrieveExtension("effusion");
-
-    /*
-    UC4EffusionData->SetAdsorptionTime(1.E-6 * CLHEP::s);
-    UC4EffusionData->SetDiffusionProbability(0.05);
-    UC4EffusionData->SetAdsorptionProbability(0.9);
-    UC4EffusionData->SetFullAdsorptionProbability(0.);
-    */
-    UC4EffusionData->SetAdsorptionTime(fAdsorptionTime);
-    UC4EffusionData->SetDiffusionProbability(diffusion_probability);
-    UC4EffusionData->SetAdsorptionProbability(adsorption_probability);
-    UC4EffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
-    UC4EffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
-    UC4EffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
 
 	//Tantalum
-    G4Material* TantalumBase = new G4Material("TantalumBase",
-                                              73., //z
-                                              180.95*g/mole, //a
-                                              16.69*g/cm3, //density
-                                              kStateSolid, //state,
-                                              fTemperature); //fTemperature
-    
-    G4ExtendedMaterial* Tantalum = new G4ExtendedMaterial("Tantalum",TantalumBase);
-    Tantalum->RegisterExtension(std::unique_ptr<EffusionMaterialData>(new EffusionMaterialData("effusion")));
-    EffusionMaterialData* TantalumEffusionData = (EffusionMaterialData*)Tantalum->RetrieveExtension("effusion");
-
-    /*
-    TantalumEffusionData->SetAdsorptionTime(1.E-6 * CLHEP::s);
-    TantalumEffusionData->SetDiffusionProbability(0.);
-    TantalumEffusionData->SetAdsorptionProbability(0.);
-    TantalumEffusionData->SetFullAdsorptionProbability(0.);
-    */
-    
-    TantalumEffusionData->SetAdsorptionTime(fAdsorptionTime);
-    TantalumEffusionData->SetDiffusionProbability(diffusion_probability);
-    TantalumEffusionData->SetAdsorptionProbability(adsorption_probability);
-    TantalumEffusionData->SetFullAdsorptionProbability(full_adsorption_probability);
-    TantalumEffusionData->SetDiffusionCoefficient(fDiffusionCoefficient);
-    TantalumEffusionData->SetPorousDiffusionCoefficient(fPorousDiffusionCoefficient);
-
+    G4Material* Tantalum = new G4Material("Tantalum",
+                                          73., //z
+                                          180.95*g/mole, //a
+                                          16.69*g/cm3, //density
+                                          kStateSolid, //state,
+                                          fTemperature); //fTemperature
     
 	//
 	//Vacuum
@@ -498,9 +431,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                                         holePos*holeSin,
                                                                         -BoxHolePosz+HolePosz));
     
-    G4LogicalExtendedVolume* lBoxHole = new G4LogicalExtendedVolume(sBoxHole,
-                                                                    BoxMaterial,
-                                                                    "BoxHole.Logic");
+    G4LogicalVolume* lBoxHole = new G4LogicalVolume(sBoxHole,
+                                                    BoxMaterial,
+                                                    "BoxHole.Logic");
     
     new G4PVPlacement(0,
                       G4ThreeVector(0,0,BoxHolePosz),
@@ -537,9 +470,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                        -holeSinHalf,
                                                         holeCosHalf));
   
-    G4LogicalExtendedVolume* lTransfer1 = new G4LogicalExtendedVolume(sSection1,
-                                                                      TubeMaterial,
-                                                                      "Transfer1.Logic");
+    G4LogicalVolume* lTransfer1 = new G4LogicalVolume(sSection1,
+                                                      TubeMaterial,
+                                                      "Transfer1.Logic");
     
     G4RotationMatrix* Transfer1Rot = new G4RotationMatrix();
     Transfer1Rot->rotateY(-90. * deg);
@@ -575,9 +508,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                          0.0,
                                                          1.0));
  
-    G4LogicalExtendedVolume* lTransfer2 = new G4LogicalExtendedVolume(sTransfer2,
-                                                                      TubeMaterial,
-                                                                      "Transfer2.Logic");
+    G4LogicalVolume* lTransfer2 = new G4LogicalVolume(sTransfer2,
+                                                      TubeMaterial,
+                                                      "Transfer2.Logic");
     G4RotationMatrix* Transfer2Rot = new G4RotationMatrix();
     Transfer2Rot->rotateY(-90.*deg);
 
@@ -624,9 +557,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                                          holePos*holeSin,
                                                                          -TubePosz + HolePosz));
 
-    G4LogicalExtendedVolume* lTaHeater = new G4LogicalExtendedVolume(sTaHeater,
-                                                                     TubeMaterial,
-                                                                     "TaHeater.Logic");
+    G4LogicalVolume* lTaHeater = new G4LogicalVolume(sTaHeater,
+                                                     TubeMaterial,
+                                                     "TaHeater.Logic");
     
     G4ThreeVector TaHeaterPosz = G4ThreeVector(0.,
                                                0.,
@@ -732,7 +665,7 @@ void DetectorConstruction::CreateTub(G4String name,
                                      G4double Dmax,
                                      G4double Dz,
                                      G4double PosZ,
-                                     G4ExtendedMaterial* material,
+                                     G4Material* material,
                                      G4LogicalVolume* motherVolume,
                                      G4Colour color){
 
@@ -745,9 +678,9 @@ void DetectorConstruction::CreateTub(G4String name,
                                360. * deg);
     
     G4String lname = name + ".Logic";
-    G4LogicalExtendedVolume* logic = new G4LogicalExtendedVolume(solid,
-                                                                 material,
-                                                                 lname);
+    G4LogicalVolume* logic = new G4LogicalVolume(solid,
+                                                 material,
+                                                 lname);
     G4String pname = name + ".Physical";
 
     new G4PVPlacement(0,
