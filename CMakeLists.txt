@@ -43,8 +43,8 @@ target_link_libraries(eff10_mod ${Geant4_LIBRARIES})
 # build eff10_mod_p. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-file(GLOB _mac RELATIVE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/mac/*.mac)
-foreach(_mac ${_mac})
+file(GLOB _macs RELATIVE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/mac/*.mac)
+foreach(_mac ${_macs})
      configure_file(
 	${PROJECT_SOURCE_DIR}/${_mac}
      	${PROJECT_BINARY_DIR}/${_mac}
@@ -53,12 +53,7 @@ foreach(_mac ${_mac})
 endforeach()
 
 #----------------------------------------------------------------------------
-# For internal Geant4 use - but has no effect if you build this
-# example standalone
-#
-add_custom_target(eff10_mod_p DEPENDS eff10_mod)
-
-#----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
+install(FILES ${_macs} DESTINATION share)
 install(TARGETS eff10_mod DESTINATION bin)

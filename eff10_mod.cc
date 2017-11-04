@@ -27,14 +27,30 @@ using namespace std;
 
 int main (int argc,char** argv) {
     
+    if (argc!=1)
+    {
+        G4String version = argv[1];
+        if(strcmp(argv[1],"--version")==0){
+            std::cout << "1.0" << std::endl;
+            return 0;
+        }
+    }
+
     G4MTRunManager* runManager = new G4MTRunManager;
-    runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores() - 2);
+    runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores());
     
     // Set mandatory initialization classes
     runManager->SetUserInitialization(new DetectorConstruction());
     if(argc>2){
-        if(atoi(argv[2])==1){
+        if(strcmp(argv[2],"--primaries")==0){
             runManager->SetUserInitialization(new QGSP_BERT());
+            std::cout << "........................" << std::endl;
+            std::cout << "........................" << std::endl;
+            std::cout << "........................" << std::endl;
+            std::cout << ". Generating Primaries ." << std::endl;
+            std::cout << "........................" << std::endl;
+            std::cout << "........................" << std::endl;
+            std::cout << "........................" << std::endl;
         }
     }
     else{
