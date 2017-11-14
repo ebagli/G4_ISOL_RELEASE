@@ -1,0 +1,17 @@
+/random/setSeeds 1558870 8037693
+/det/setTemperature 1600 kelvin
+/run/initialize
+/stacking/killSecondary 1
+/gps/particle ion
+/gps/ion 36 86
+
+/gps/time 0.0 ns
+/gps/energy 0.24210389477849997 eV
+/gps/ang/type iso
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/halfz 0.5 mm
+/gps/pos/radius 20.0 mm
+/gps/pos/centre 0. 0. 55.68 mm
+/run/beamOn 38

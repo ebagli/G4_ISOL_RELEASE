@@ -1,0 +1,12 @@
+/det/setTemperature 2000 kelvin
+/run/initialize
+/stacking/killSecondary 0
+/gps/particle proton
+/gps/time 0.0 ns
+/gps/energy 40 MeV
+/gps/direction 0 0 1
+/gps/ang/type focused
+
+/gps/pos/type Point
+/gps/pos/centre 0. 0. -150. mm
+/run/beamOn 6242000000
