@@ -11,12 +11,12 @@ echo "Starting, output in $PWD/cout.log and $PWD/cerr.log"
 eff10_mod /macros/${1} ${2} > >(tee $PWD/.cerr.log) 1> >(tee $PWD/cout.log)
 set -e
 
-echo "Done, copying output to /output/out.tgz"
+echo "Done, copying output to /output/${1}.tgz"
 mkdir -p /output
 
 set +e
 files=`ls *.csv *.root 2> /dev/null` 
 set -e
-tar czf /output/out.tgz ${files}
+tar czf /output/${1}.tgz ${files}
 date
 echo "All done, bye"
