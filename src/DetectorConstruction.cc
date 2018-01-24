@@ -193,7 +193,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     if(bTest == true){
         //DiskDmin =  0.0 * mm;
-        //DiskDmax = 26.0 * mm;
+        DiskDmax = 13.0 * mm;
         DiskDz   =  1.0 * mm;
     }
     
