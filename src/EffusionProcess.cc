@@ -54,9 +54,20 @@ validLocalNorm(false){
         fEffusionID = G4PhysicsModelCatalog::Register("effusion");
     }
     
-    theAdsorptionTimeMap.insert({GetIndex(37,73),100*CLHEP::nanosecond});
-    theAdsorptionTimeMap.insert({GetIndex(37,6),4420*CLHEP::nanosecond});
-    
+    SetAdsorptionTime(37,73,100);
+    SetAdsorptionTime(37,6,4420);
+
+    SetAdsorptionTime(36,73,100);
+    SetAdsorptionTime(36,6,4420);
+
+    fAdsorptionTimeMessenger =
+    new G4GenericMessenger(this,
+                           "/effusion/",
+                           "Change Adsorption Time" );
+    fAdsorptionTimeMessenger->DeclareMethod("loadAdsTime", &EffusionProcess::LoadAdsorptionTime,
+                                            "load adsorption time partZ;matZ;time_ns" );
+    fAdsorptionTimeMessenger->SetGuidance("particle_Z;material_Z;time_ns");
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -82,11 +93,11 @@ EffusionProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 {
     aParticleChange.Initialize(aTrack);
 
-    if(aTrack.GetGlobalTime() > 10. * CLHEP::second) {
+    if(aTrack.GetGlobalTime() > 360000. * CLHEP::second) {
         G4Exception("EffusionProcess::PostStepDoIt",
                     "eff0001",
                     JustWarning,
-                    "Particle killed after 10 second.");
+                    "Particle killed after 100 hours.");
         
         aParticleChange.ProposeEnergy(0.);
         aParticleChange.ProposeTrackStatus(fStopAndKill);

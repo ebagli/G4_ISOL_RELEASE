@@ -35,9 +35,12 @@
 #include "G4VParticleChange.hh"
 
 #include "G4VDiscreteProcess.hh"
+
 #include "EffusionTrackData.hh"
+#include "G4GenericMessenger.hh"
 
 #include <unordered_map>
+#include <string>
 
 #define bDONT_USE_DIFFUSION 0
 
@@ -53,8 +56,82 @@ public:
     
     G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
                                     const G4Step&  aStep);
+public:
+    void SetDiffusionCoefficient(G4int partZ,
+                                 std::string matName,
+                                 G4double value){
+        std::unordered_map<int, double>::iterator it =
+        theDiffusionCoefficientMap.find(GetIndex(partZ,matName));
         
+        if (it != theDiffusionCoefficientMap.end()){
+            G4cout << "Previous " << it->second << G4endl;
+            theDiffusionCoefficientMap.erase(GetIndex(partZ,matName));
+            
+        }
+
+        theDiffusionCoefficientMap.insert({GetIndex(partZ,matName),value * CLHEP::cm2/CLHEP::second});
+    
+        it = theDiffusionCoefficientMap.find(GetIndex(partZ,matName));
+        if (it != theDiffusionCoefficientMap.end()){
+            G4cout << "New " << it->second << G4endl;
+        }
+
+    }
+
+    void SetPorousDiffusionCoefficient(G4int partZ,
+                                       std::string matName,
+                                       G4double value){
+        
+        std::unordered_map<int, double>::iterator it =
+        thePorousDiffusionCoefficientMap.find(GetIndex(partZ,matName));
+        
+        if (it != theDiffusionCoefficientMap.end()){
+            G4cout << "Previous " << it->second << G4endl;
+            thePorousDiffusionCoefficientMap.erase(GetIndex(partZ,matName));
+            
+        }
+
+        thePorousDiffusionCoefficientMap.insert({GetIndex(partZ,matName),value * CLHEP::cm2/CLHEP::second});
+    
+        it = thePorousDiffusionCoefficientMap.find(GetIndex(partZ,matName));
+        if (it != theDiffusionCoefficientMap.end()){
+            G4cout << "New " << it->second << G4endl;
+        }
+
+    }
+
+    std::vector<std::string> Tokenize(std::string s){
+        const char delimiter = ';';
+        std::vector<std::string> tokens;
+        std::string token;
+        std::istringstream tokenStream(s);
+        while (std::getline(tokenStream, token, delimiter)){
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+    
+    void LoadDiffusionCoefficient(std::string s){
+        std::vector<std::string> tokens;
+        tokens = Tokenize(s);
+        
+        if(!tokens.empty()){
+            SetDiffusionCoefficient(std::stoi(tokens[0]),tokens[1],std::stof(tokens[2]));
+        }
+    }
+    void LoadPorousDiffusionCoefficient(std::string s){
+        std::vector<std::string> tokens;
+        tokens = Tokenize(s);
+        
+        if(!tokens.empty()){
+            SetPorousDiffusionCoefficient(std::stoi(tokens[0]),tokens[1],std::stof(tokens[2]));
+        }
+    }
+    
 private:
+    G4GenericMessenger*  fDiffusionMessenger;
+    G4GenericMessenger*  fPorousDiffusionMessenger;
+
     G4double kCarTolerance;
     G4double GetDiffusionCoefficient(const G4Track& aTrack);
     G4double GetPorousDiffusionCoefficient(const G4Track& aTrack);

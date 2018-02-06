@@ -187,14 +187,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double DiskDmin =  0.0 * mm;
     G4double DiskDmax = 40.0 * mm;
     G4double DiskDz   =  0.8 * mm;
+    G4double HoleDmax  =  8.8 * mm;
 
     
-    G4bool bTest = true;
+    G4bool bTest = false;
     
     if(bTest == true){
         //DiskDmin =  0.0 * mm;
         DiskDmax = 13.0 * mm;
         DiskDz   =  1.0 * mm;
+        HoleDmax =  4.8 * mm;
     }
     
 
@@ -288,17 +290,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     // Dump
     G4double DumpD1min  =  0.0  * mm;
-    G4double DumpD1max  = 45.0  * mm;
+    G4double DumpD1max  = DiskDmax + 5.0  * mm;
     G4double Dump1Dz    =  0.8  * mm;
     G4double Dump1Posz  = 68.28 * mm;
 
     G4double DumpD2min  =  0.0  * mm;
-    G4double DumpD2max  = 45.0  * mm;
+    G4double DumpD2max  = DiskDmax + 5.0  * mm;
     G4double Dump2Dz    =  0.8  * mm;
     G4double Dump2Posz  = 75.08 * mm;
 
     G4double DumpD3min  =  0.0  * mm;
-    G4double DumpD3max  = 45.0  * mm;
+    G4double DumpD3max  = DiskDmax + 5.0  * mm;
     G4double Dump3Dz    =  1.0  * mm;
     G4double Dump3Posz  = 83.88 * mm;
     
@@ -387,8 +389,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double TransferSect1Dz = 10.0 * mm;
 
     // Box
-    G4double BoxDmin  =   45.0 * mm;
-    G4double BoxDmax  =   49.5 * mm;
+    G4double BoxDmin  =   DiskDmax + 5.0 * mm;
+    G4double BoxDmax  =   DiskDmax + 9.5 * mm;
     G4double BoxDz    =  201.5 * mm;
     G4Tubs*  sBox = new G4Tubs("Box.Solid",
                                BoxDmin * 0.5,
@@ -407,8 +409,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double holePos = (BoxDmax+BoxDmin) * 0.5 * 0.5; // initial value 15.
 
     G4double HoleDmin  =  0.0 * mm;
-    G4double HoleDmax  =  8.8 * mm;
-    G4double HoleDz    = 30.0 * mm;
+    G4double HoleDz    = 10.0 * mm;
     
     G4Tubs*  sHole = new G4Tubs("Hole.Solid",
                                 HoleDmin,
@@ -453,8 +454,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // Definition of the Transfer Line
     //
 
-    G4double TransferDmin = 8.0 * mm;
-    G4double TransferDmax = 8.8 * mm;
+    G4double TransferDmin = HoleDmax - 0.8 * mm;
+    G4double TransferDmax = HoleDmax;
     
     // Section 1
     G4CutTubs* sSection1 = new G4CutTubs("Section1.Solid",
@@ -535,8 +536,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     
     // Tantalum Heater
-    G4double TubeDmin  =  49.6 * mm;
-    G4double TubeDmax  =  50.0 * mm;
+    G4double TubeDmin  =  DiskDmax +  9.6 * mm;
+    G4double TubeDmax  =  DiskDmax + 10.0 * mm;
     G4double TubeDz    = 169.0 * mm;
     G4double TubePosz  = -21.5 * mm;
     

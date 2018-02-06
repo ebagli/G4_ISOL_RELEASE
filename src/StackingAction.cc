@@ -37,7 +37,7 @@ StackingAction::StackingAction(){
     fKillSecondaryMessenger =
     new G4GenericMessenger(this, "/stacking/","Biasing control" );
     
-    G4GenericMessenger::Command& killSecondaryCmd =
+    //G4GenericMessenger::Command& killSecondaryCmd =
     fKillSecondaryMessenger->DeclareProperty("killSecondary", fKillSecondary,
                                              "Kill secondary particles yes/no." );
 

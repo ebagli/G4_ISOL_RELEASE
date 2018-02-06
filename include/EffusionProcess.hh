@@ -37,8 +37,10 @@
 #include "G4VDiscreteProcess.hh"
 
 #include "EffusionTrackData.hh"
+#include "G4GenericMessenger.hh"
 
 #include <unordered_map>
+#include <string>
 
 class EffusionProcess : public G4VDiscreteProcess{
     
@@ -57,7 +59,45 @@ public:
     void SampleMaxwellBoltzmannKineticEnergy(const G4Track&);
     void SampleLambertianDirection(const G4Track& aTrack);
     
+public:
+    void SetAdsorptionTime(G4int partZ,
+                           G4int matZ,
+                           G4double value){
+        
+        std::unordered_map<int, double>::iterator it =
+        theAdsorptionTimeMap.find(GetIndex(partZ,matZ));
+        
+        if (it != theAdsorptionTimeMap.end()){
+            G4cout << "Previous " << it->second << G4endl;
+            theAdsorptionTimeMap.erase(GetIndex(partZ,matZ));
+
+        }
+        
+        theAdsorptionTimeMap.insert({GetIndex(partZ,matZ),value*CLHEP::nanosecond});
+        
+        it = theAdsorptionTimeMap.find(GetIndex(partZ,matZ));
+        if (it != theAdsorptionTimeMap.end()){
+            G4cout << "New " << it->second << G4endl;
+        }
+    }
+    
+    void LoadAdsorptionTime(std::string s){
+        
+        if (s==""){return;}
+        const char delimiter = ';';
+        std::vector<std::string> tokens;
+        std::string token;
+        std::istringstream tokenStream(s);
+        while (std::getline(tokenStream, token, delimiter)){
+            tokens.push_back(token);
+        }
+        if(tokens.size() < 3){return;}
+        SetAdsorptionTime(std::stoi(tokens[0]),std::stoi(tokens[1]),std::stof(tokens[2]));
+    }
+    
 private:
+    G4GenericMessenger*  fAdsorptionTimeMessenger;
+    
     G4double kCarTolerance;
     
     // Variables for Maxwell-Boltzmann

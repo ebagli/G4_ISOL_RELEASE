@@ -53,12 +53,28 @@ DiffusionProcess::DiffusionProcess(const G4String& processName): G4VDiscreteProc
     }
     */
     
-    theDiffusionCoefficientMap.insert({GetIndex(37,"UC4"),7.943E-13 * CLHEP::cm2/CLHEP::second});
-    thePorousDiffusionCoefficientMap.insert({GetIndex(37,"UC4"),1.E10 * CLHEP::cm2/CLHEP::second});
+    SetDiffusionCoefficient(37,"UC4",7.943E-13);
+    SetPorousDiffusionCoefficient(37,"UC4",1.E10);
 
-    theDiffusionCoefficientMap.insert({GetIndex(36,"UC4"),7.943E-13 * CLHEP::cm2/CLHEP::second});
-    thePorousDiffusionCoefficientMap.insert({GetIndex(36,"UC4"),1.E10 * CLHEP::cm2/CLHEP::second});
+    SetDiffusionCoefficient(36,"UC4",7.943E-13);
+    SetPorousDiffusionCoefficient(36,"UC4",1.E10);
+    
+    fDiffusionMessenger =
+    new G4GenericMessenger(this,
+                           "/diffusion/",
+                           "Load Diffusion Coefficient" );
+    fDiffusionMessenger->DeclareMethod("loadDiffCoeff", &DiffusionProcess::LoadDiffusionCoefficient,
+                                       "load diffusion coefficient particle_Z;material_name;diff_cm2_on_s" );
+    fDiffusionMessenger->SetGuidance("particle_Z;material_name;diff_cm2_on_s");
 
+    fPorousDiffusionMessenger =
+    new G4GenericMessenger(this,
+                           "/diffusion/",
+                           "Load Porous Diffusion Coefficient" );
+    fPorousDiffusionMessenger->DeclareMethod("loadPorDiffCoeff", &DiffusionProcess::LoadPorousDiffusionCoefficient,
+                                       "load porous diffusion coefficient particle_Z;material_name;diff_cm2_on_s" );
+    fPorousDiffusionMessenger->SetGuidance("particle_Z;material_name;diff_cm2_on_s");
+    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

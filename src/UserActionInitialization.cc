@@ -24,7 +24,6 @@
 // ********************************************************************
 //
 
-#ifdef G4MULTITHREADED
 #include "UserActionInitialization.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "EventAction.hh"
@@ -54,4 +53,4 @@ void UserActionInitialization::BuildForMaster() const {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-#endif
+

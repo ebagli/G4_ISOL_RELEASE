@@ -3,8 +3,8 @@
 #include "Randomize.hh"
 #include "G4UIterminal.hh"
 
-#include "DetectorConstruction.hh"
 #include "UserActionInitialization.hh"
+#include "DetectorConstruction.hh"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"

@@ -25,8 +25,6 @@
 //
 //
 
-#ifdef G4MULTITHREADED
-
 #ifndef UserActionInitialization_h
 #define UserActionInitialization_h 1
 #endif
@@ -41,9 +39,6 @@ public:
     void Build() const;
     void BuildForMaster() const;
 };
-
-#endif
-
 
 
 
