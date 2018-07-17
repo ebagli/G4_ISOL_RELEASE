@@ -64,7 +64,8 @@ private:
                    G4double,
                    G4Material*,
                    G4LogicalVolume*,
-                   G4Colour);
+                   G4Colour,
+                   G4int);
 
 private:
     G4double fTemperature;

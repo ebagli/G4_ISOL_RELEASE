@@ -23,14 +23,44 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+// $Id: Run.hh 68058 2013-03-13 14:47:43Z gcosmo $
+//
+/// \file Run.hh
+/// \brief Definition of the Run class
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#ifndef Run_h
+#define Run_h 1
 
-//#include "g4root.hh"
-//#include "g4xml.hh"
-#include "g4csv.hh"
+#include "G4Run.hh"
+#include "globals.hh"
+#include <unordered_map>
+
+/// Run class
+///
+/// In RecordEvent() there is collected information event per event 
+/// from Hits Collections, and accumulated statistic for the run 
+
+class Run : public G4Run
+{
+  public:
+    Run();
+    virtual ~Run();
+
+    virtual void RecordEvent(const G4Event*);
+    virtual void Merge(const G4Run*);
+    
+    G4int GetCode(G4int A,G4int Z, G4int disk){
+        return (disk+1)*1000000 + A*1000 + Z;
+    }
+    
+  private:
+    G4int fUCx_ID;
+public:
+    std::unordered_map<int,int> fIsotopes;
+};
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 
-#define bSAVEALLPRIMARIES 0
+    

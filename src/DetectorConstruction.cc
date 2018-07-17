@@ -227,7 +227,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                   fTargetDiskPosition[i0],
                   DiskMaterial,
                   logicWorld,
-                  color_yellow);
+                  color_yellow,
+                  i0);
     }
 
     //*********************************************************//
@@ -251,7 +252,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               WindowPosz,
               BoxMaterial,
               logicWorld,
-              color_red);
+              color_red,
+              0);
 
     //*********************************************************//
     //
@@ -281,7 +283,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               Dump1Posz,
               BoxMaterial,
               logicWorld,
-              color_red);
+              color_red,
+              0);
 
     CreateTub("Dump2",
               DumpD2min,
@@ -290,7 +293,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               Dump2Posz,
               BoxMaterial,
               logicWorld,
-              color_red);
+              color_red,
+              0);
 
     CreateTub("Dump3",
               DumpD3min,
@@ -299,7 +303,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               Dump3Posz,
               BoxMaterial,
               logicWorld,
-              color_red);
+              color_red,
+              0);
     
     //*********************************************************//
     //
@@ -592,7 +597,8 @@ void DetectorConstruction::CreateTub(G4String name,
                                      G4double PosZ,
                                      G4Material* material,
                                      G4LogicalVolume* motherVolume,
-                                     G4Colour color){
+                                     G4Colour color,
+                                     G4int copyNo = 0){
 
     G4String sname = name + ".Solid";
     G4Tubs* solid = new G4Tubs(sname,
@@ -614,7 +620,7 @@ void DetectorConstruction::CreateTub(G4String name,
                       pname,
                       motherVolume,
                       false,
-                      0);
+                      copyNo);
 
     G4VisAttributes* visAtt = new G4VisAttributes(color);
     visAtt->SetVisibility(true);

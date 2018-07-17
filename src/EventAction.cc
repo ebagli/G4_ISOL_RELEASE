@@ -50,7 +50,7 @@ EventAction::EventAction()
     fSD_ID = -1;
     fUCx_ID = -1;
     fVerboseLevel = 0;
-    bSaveAllUCx = true;
+    bSaveAllUCx = false;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -117,7 +117,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
         for(int i1=0;i1<n_hit_sd;i1++)
         {
             TargetSensitiveDetectorHit* aHit = (*fUCx)[i1];
-            if(bSaveAllUCx){
+            if(bSAVEALLPRIMARIES){
                 analysisManager->FillNtupleDColumn(1,0, aHit->GetTime()/CLHEP::s);
                 analysisManager->FillNtupleDColumn(1,1, aHit->GetA());
                 analysisManager->FillNtupleDColumn(1,2, aHit->GetZ());
@@ -130,7 +130,6 @@ void EventAction::EndOfEventAction(const G4Event* evt){
             }
             
             analysisManager->FillH2(0,aHit->GetZ(),aHit->GetA());
-            
         }
     }
 

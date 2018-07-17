@@ -78,7 +78,8 @@ private:
     G4ThreeVector fWorldPos;
     G4double fEnergy;
     G4double fEnergyPrevious;
-    
+    G4int fDisk;
+
 public:
     inline void SetTrackID(G4int z) { fTrackID = z; }
     inline G4int GetTrackID() const { return fTrackID; }
@@ -100,6 +101,8 @@ public:
     inline G4double GetEnergy() const { return fEnergy; }
     inline void SetEnergyPrevious(G4double energy) { fEnergyPrevious = energy; }
     inline G4double GetEnergyPrevious() const { return fEnergyPrevious; }
+    inline void SetDiskNumber(G4int z) { fDisk = z; }
+    inline G4int GetDiskNumber() const { return fDisk; }
 };
 
 typedef G4THitsCollection<TargetSensitiveDetectorHit> TargetSensitiveDetectorHitsCollection;

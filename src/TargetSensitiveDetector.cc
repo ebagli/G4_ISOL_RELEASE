@@ -118,7 +118,11 @@ bool TargetSensitiveDetector::ProcessHits(G4Step *aStep,G4TouchableHistory* /*RO
     aHit->SetTime(preStepPoint->GetGlobalTime());
     aHit->SetEnergy(preStepPoint->GetKineticEnergy());
     aHit->SetEnergyPrevious(fEnParent);
-    
+
+    G4VPhysicalVolume* thePhysical = theTouchable->GetVolume(0);
+    G4int copyNo = thePhysical->GetCopyNo();
+    aHit->SetDiskNumber(copyNo);
+
     fHitsCollection->insert(aHit);
 
     fEnParent = preStepPoint->GetKineticEnergy();

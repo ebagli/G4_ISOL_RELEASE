@@ -30,13 +30,14 @@
 #include "G4RunManager.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "Run.hh"
 
 #include "Analysis.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction(): G4UserRunAction(){
-    G4RunManager::GetRunManager()->SetPrintProgress(1);
+    G4RunManager::GetRunManager()->SetPrintProgress(100);
     
     auto analysisManager = G4AnalysisManager::Instance();
     G4cout << "Using " << analysisManager->GetType() << G4endl;
@@ -52,19 +53,20 @@ RunAction::RunAction(): G4UserRunAction(){
     analysisManager->CreateNtupleDColumn("Z");
     analysisManager->FinishNtuple();
 
-    analysisManager->CreateNtuple("ucx","UCx hits");
-    analysisManager->CreateNtupleDColumn("t");
-    analysisManager->CreateNtupleDColumn("A");
-    analysisManager->CreateNtupleDColumn("Z");
-    analysisManager->CreateNtupleDColumn("AP");
-    analysisManager->CreateNtupleDColumn("AZ");
-    analysisManager->CreateNtupleDColumn("x");
-    analysisManager->CreateNtupleDColumn("y");
-    analysisManager->CreateNtupleDColumn("z");
-    analysisManager->FinishNtuple();
+    if(bSAVEALLPRIMARIES){
+        analysisManager->CreateNtuple("ucx","UCx hits");
+        analysisManager->CreateNtupleDColumn("t");
+        analysisManager->CreateNtupleDColumn("A");
+        analysisManager->CreateNtupleDColumn("Z");
+        analysisManager->CreateNtupleDColumn("AP");
+        analysisManager->CreateNtupleDColumn("AZ");
+        analysisManager->CreateNtupleDColumn("x");
+        analysisManager->CreateNtupleDColumn("y");
+        analysisManager->CreateNtupleDColumn("z");
+        analysisManager->FinishNtuple();
+    }
     
-    
-    analysisManager->CreateH2("IT","Isotope Table", 120, 0.5, 120.5, 300, 0.5, 300.5);
+    analysisManager->CreateH2("IT","Isotopes Table",120,-0.5,119.5,300,-0.5,299.5);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -72,6 +74,11 @@ RunAction::RunAction(): G4UserRunAction(){
 RunAction::~RunAction(){
     delete G4AnalysisManager::Instance();
 }
+
+G4Run* RunAction::GenerateRun()
+{ return new Run; }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -82,11 +89,23 @@ void RunAction::BeginOfRunAction(const G4Run* /*run*/){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::EndOfRunAction(const G4Run* /*run*/){
+void RunAction::EndOfRunAction(const G4Run* run){
     auto analysisManager = G4AnalysisManager::Instance();
     analysisManager->Write();
     analysisManager->CloseFile();
     
+    const Run* run_spes = static_cast<const Run*>(run);
+
+    if (IsMaster())
+    {
+        std::ofstream fFileOut;
+        fFileOut.open("isotope_table.dat",std::ofstream::out | std::ofstream::app);
+        for (auto it : run_spes->fIsotopes){
+            fFileOut << it.first << " , " << it.second << std::endl;
+        }
+        fFileOut.close();
+    }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
