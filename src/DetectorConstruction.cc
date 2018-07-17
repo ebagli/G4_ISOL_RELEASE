@@ -70,9 +70,30 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction():
-fTemperature(1600.*CLHEP::kelvin)
+fTemperature(1600.*CLHEP::kelvin),
+bPrimaries(false),
+fTargetMaterialName("UC4"),
+fTargetDiskNumber(7),
+fTargetDensity(4.*g/cm3),
+fTargetBoxInit(-107.02 * mm),
+fTargetBoxEnd(94.48 * mm),
+fTargetDiskRadius(20.0 * mm),
+fTargetDiskPosition(),
+fTargetDiskThickness()
 {
     fMessenger = new DetectorConstructionMessenger(this);
+    
+    fTargetDiskPosition[0] = -66.82 * mm;
+    fTargetDiskPosition[1] = -50.52 * mm;
+    fTargetDiskPosition[2] = -33.22 * mm;
+    fTargetDiskPosition[3] = -15.92 * mm;
+    fTargetDiskPosition[4] =  +9.38 * mm;
+    fTargetDiskPosition[5] = +35.68 * mm;
+    fTargetDiskPosition[6] = +54.98 * mm;
+
+    for(int i=0;i<fTargetDiskNumber;i++){
+        fTargetDiskThickness[i] = 0.8 * mm;
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -96,7 +117,7 @@ void DetectorConstruction::DefineMaterials(){
     G4Element* U = G4NistManager::Instance()->FindOrBuildElement("U");
 
     G4Material* UC4 = new G4Material("UC4",
-                                     4.*g/cm3, //density
+                                     4.0 * g/cm3, //density
                                      2, //nComponents
                                      kStateSolid, //state,
                                      fTemperature); //fTemperature
@@ -131,8 +152,14 @@ void DetectorConstruction::DefineMaterials(){
     WorldMaterial = TVac;
     TubeMaterial = Tantalum;
     BoxMaterial = Graphite;
-    DiskMaterial = UC4;
     
+    if(fTargetDensity != 0.){
+        DiskMaterial = G4NistManager::Instance()->BuildMaterialWithNewDensity(fTargetMaterialName + "_used",fTargetMaterialName,fTargetDensity);
+    }
+    else{
+        DiskMaterial = G4NistManager::Instance()->FindOrBuildMaterial(fTargetMaterialName);
+    }
+    G4cout << DiskMaterial << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -185,31 +212,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     //
     
     G4double DiskDmin =  0.0 * mm;
-    G4double DiskDmax = 40.0 * mm;
-    G4double DiskDz   =  0.8 * mm;
+    G4double DiskDmax = fTargetDiskRadius * 2.;
     G4double HoleDmax  =  8.8 * mm;
 
-    
-    G4bool bTest = false;
-    
-    if(bTest == true){
-        //DiskDmin =  0.0 * mm;
-        DiskDmax = 13.0 * mm;
-        DiskDz   =  1.0 * mm;
-        HoleDmax =  4.8 * mm;
-    }
-    
-
-    G4double DiskPosZ[7] = {
-         55.68 * mm,
-         36.38 * mm,
-         10.08 * mm,
-        -15.22 * mm,
-        -32.52 * mm,
-        -49.82 * mm,
-        -66.12 * mm};
-    
-    for(G4int i0=0;i0<7;i0++){
+    for(G4int i0=0;i0<fTargetDiskNumber;i0++){
 
         G4String diskName = "Disk";
         diskName += std::to_string(i0);
@@ -217,8 +223,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         CreateTub(diskName,
                   DiskDmin,
                   DiskDmax,
-                  DiskDz,
-                  DiskPosZ[i0],
+                  fTargetDiskThickness[i0],
+                  fTargetDiskPosition[i0],
                   DiskMaterial,
                   logicWorld,
                   color_yellow);
@@ -236,11 +242,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double WindowDmin =   0.0  * mm;
     G4double WindowDmax = DiskDmax + 5.0  * mm; // Original 45.0 * mm
     G4double WindowDz   =   0.2  * mm;
-    G4double WindowPosz = DiskPosZ[6] - 10. * mm; // Original -77.32 * mm
-
-    if(bTest == true){
-        WindowDz   =  0.4 * mm;
-    }
+    G4double WindowPosz = fTargetDiskPosition[0] - 10. * mm; // Original -77.32 * mm
 
     CreateTub("Window",
               WindowDmin,
@@ -251,38 +253,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               logicWorld,
               color_red);
 
-    /*
-    //Spacer
-    G4double WindowSpacer1Dmin =  DiskDmax + 2.0  * mm; // Original 42.0 * mm
-    G4double WindowSpacer1Dmax =  DiskDmax + 5.0  * mm; // Original 45.0 * mm
-    G4double WindowSpacer1Dz   =  29.4 * mm; // Original 29.02 * mm - with 29.4 mm it overlaps the Window
-    G4double WindowSpacer1Posz =  WindowPosz - WindowSpacer1Dz * 0.5; // Original -92.03 * mm
-    
-    G4double WindowSpacer2Dmin =  DiskDmax + 1.0  * mm; // Original 41.0  * mm
-    G4double WindowSpacer2Dmax =  DiskDmax + 2.0  * mm; // Original 42.0  * mm
-    G4double WindowSpacer2Dz   =  12.0 * mm; // Original 11.62 * mm - with 12.0 mm it overlaps the Window
-    G4double WindowSpacer2Posz =  WindowPosz + WindowSpacer2Dz * 0.5; // Original -83.33 * mm
-    
-    CreateTub("WindowSpacer1",
-              WindowSpacer1Dmin,
-              WindowSpacer1Dmax,
-              WindowSpacer1Dz,
-              WindowSpacer1Posz,
-              BoxMaterial,
-              logicWorld,
-              color_blue);
-
-    CreateTub("WindowSpacer2",
-              WindowSpacer2Dmin,
-              WindowSpacer2Dmax,
-              WindowSpacer2Dz,
-              WindowSpacer2Posz,
-              BoxMaterial,
-              logicWorld,
-              color_blue);
-    */
-    
-
     //*********************************************************//
     //
     // Definition of the Target Dumps
@@ -292,17 +262,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double DumpD1min  =  0.0  * mm;
     G4double DumpD1max  = DiskDmax + 5.0  * mm;
     G4double Dump1Dz    =  0.8  * mm;
-    G4double Dump1Posz  = 68.28 * mm;
+    G4double Dump1Posz  = fTargetBoxEnd - 26.2 * mm;
 
     G4double DumpD2min  =  0.0  * mm;
     G4double DumpD2max  = DiskDmax + 5.0  * mm;
     G4double Dump2Dz    =  0.8  * mm;
-    G4double Dump2Posz  = 75.08 * mm;
+    G4double Dump2Posz  = fTargetBoxEnd - 19.4 * mm;
 
     G4double DumpD3min  =  0.0  * mm;
     G4double DumpD3max  = DiskDmax + 5.0  * mm;
     G4double Dump3Dz    =  1.0  * mm;
-    G4double Dump3Posz  = 83.88 * mm;
+    G4double Dump3Posz  = fTargetBoxEnd - 10.5 * mm;
     
     CreateTub("Dump1",
               DumpD1min,
@@ -330,52 +300,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               BoxMaterial,
               logicWorld,
               color_red);
-
-    /*
-    // Dump Spacer
-    G4double DumpSpacer1Dmin =  42.0  * mm;
-    G4double DumpSpacer1Dmax =  45.0  * mm;
-    G4double DumpSpacer1Dz   =   6.0  * mm;
-    G4double DumpSpacer1Posz =  71.68 * mm;
-    
-    
-    G4double DumpSpacer2Dmin =  42.0  * mm;
-    G4double DumpSpacer2Dmax =  45.0  * mm;
-    G4double DumpSpacer2Dz   =   7.9  * mm; // with 8.0 mm it overlaps the Dump
-    G4double DumpSpacer2Posz =  79.43 * mm; // with 79.48 mm it overlaps the Dump
-
-    G4double DumpSpacer3Dmin =  34.0  * mm;
-    G4double DumpSpacer3Dmax =  45.0  * mm;
-    G4double DumpSpacer3Dz   =  10.1  * mm;
-    G4double DumpSpacer3Posz =  89.43 * mm;
-
-    CreateTub("DumpSpacer1",
-              DumpSpacer1Dmin,
-              DumpSpacer1Dmax,
-              DumpSpacer1Dz,
-              DumpSpacer1Posz,
-              BoxMaterial,
-              logicWorld,
-              color_blue);
-    
-    CreateTub("DumpSpacer2",
-              DumpSpacer2Dmin,
-              DumpSpacer2Dmax,
-              DumpSpacer2Dz,
-              DumpSpacer2Posz,
-              BoxMaterial,
-              logicWorld,
-              color_blue);
-    
-    CreateTub("DumpSpacer3",
-              DumpSpacer3Dmin,
-              DumpSpacer3Dmax,
-              DumpSpacer3Dz,
-              DumpSpacer3Posz,
-              BoxMaterial,
-              logicWorld,
-              color_blue);
-    */
     
     //*********************************************************//
     //
@@ -385,13 +309,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
     // Hole Parameters to be modified
     G4double holeAngle = 90 * deg;
-    G4double HolePosz = 0.;
     G4double TransferSect1Dz = 10.0 * mm;
 
     // Box
     G4double BoxDmin  =   DiskDmax + 5.0 * mm;
     G4double BoxDmax  =   DiskDmax + 9.5 * mm;
-    G4double BoxDz    =  201.5 * mm;
+    G4double BoxDz    =  fabs(fTargetBoxEnd - fTargetBoxInit);
     G4Tubs*  sBox = new G4Tubs("Box.Solid",
                                BoxDmin * 0.5,
                                BoxDmax * 0.5,
@@ -401,7 +324,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
     // Hole
-    //G4double holeTan = std::tan(holeAngle);
     G4double holeCos = std::cos(holeAngle);
     G4double holeSin = std::sin(holeAngle);
     G4double holeCosHalf = std::cos(holeAngle*0.5);
@@ -421,7 +343,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     // Box - Hole
     G4RotationMatrix* sHoleRot = new G4RotationMatrix();
-    G4double BoxHolePosz = -6.27 * mm;
+    G4double BoxHolePosz = - (fTargetBoxEnd + fTargetBoxInit) * 0.5;
     sHoleRot->rotateY(-90. * deg);
     sHoleRot->rotateX(holeAngle);
     G4SubtractionSolid* sBoxHole = new G4SubtractionSolid("BoxHole.Solid",
@@ -430,7 +352,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                           sHoleRot,
                                                           G4ThreeVector(holePos*holeCos,
                                                                         holePos*holeSin,
-                                                                        -BoxHolePosz+HolePosz));
+                                                                        -BoxHolePosz));
     
     G4LogicalVolume* lBoxHole = new G4LogicalVolume(sBoxHole,
                                                     BoxMaterial,
@@ -482,7 +404,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     G4ThreeVector Transfer1Posz = G4ThreeVector((holePos+TransferSect1Dz*0.5)*holeCos,
                                                 (holePos+TransferSect1Dz*0.5)*holeSin,
-                                                 HolePosz);
+                                                 0.);
 
     new G4PVPlacement(Transfer1Rot,
                       Transfer1Posz,
@@ -517,7 +439,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
     G4ThreeVector Transfer2Posz = G4ThreeVector((TransferSect2Dz*0.5 + (holePos+TransferSect1Dz)*holeCos),
                                                 ((holePos+TransferSect1Dz)*holeSin),
-                                                  HolePosz);
+                                                  0.);
     
 
     new G4PVPlacement(Transfer2Rot,
@@ -538,8 +460,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // Tantalum Heater
     G4double TubeDmin  =  DiskDmax +  9.6 * mm;
     G4double TubeDmax  =  DiskDmax + 10.0 * mm;
-    G4double TubeDz    = 169.0 * mm;
-    G4double TubePosz  = -21.5 * mm;
+    G4double TubeDz    = BoxDz - 20.;
+    G4double TubePosz  = BoxHolePosz;
     
     G4Tubs* sTaTube = new G4Tubs("TaTube.Solid",
                                  TubeDmin/2,
@@ -556,7 +478,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                            sHoleRot,
                                                            G4ThreeVector(holePos*holeCos,
                                                                          holePos*holeSin,
-                                                                         -TubePosz + HolePosz));
+                                                                         - TubePosz));
 
     G4LogicalVolume* lTaHeater = new G4LogicalVolume(sTaHeater,
                                                      TubeMaterial,
@@ -564,7 +486,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
     G4ThreeVector TaHeaterPosz = G4ThreeVector(0.,
                                                0.,
-                                               TubePosz + HolePosz);
+                                               TubePosz);
 
     new G4PVPlacement(0,
                       TaHeaterPosz,
@@ -590,7 +512,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double detYZ = 100. * mm;
     G4ThreeVector detPos = G4ThreeVector( 90.5 * mm,
                                           30.0 * mm,
-                                          HolePosz);
+                                          0.);
     
     G4Box* sDetector = new G4Box("Detector.Solid",
                                  detX  * 0.5,
@@ -634,7 +556,7 @@ void DetectorConstruction::ConstructSDandField(){
     G4VSensitiveDetector* ucxdet = new TargetSensitiveDetector(SDname="/ucx",0);
     G4SDManager::GetSDMpointer()->AddNewDetector(ucxdet);
 
-    for(G4int i0=0;i0<7;i0++){
+    for(G4int i0=0;i0<fTargetDiskNumber;i0++){
         
         G4String diskName = "Disk";
         diskName += std::to_string(i0);
@@ -648,14 +570,16 @@ void DetectorConstruction::ConstructSDandField(){
         }
     }
     
-    EffusionOptrMultiParticleChangeCrossSection* effusionXSchange = new EffusionOptrMultiParticleChangeCrossSection();
-    effusionXSchange->AddParticle("GenericIon");
-    // Modify Radioactive In-Flight Decay with Sticking Time
-    for (auto lv : *G4LogicalVolumeStore::GetInstance()){
-        G4String lvName = lv->GetName();
-        effusionXSchange->AttachTo(lv);
-        G4cout << "--- Attaching biasing operator " << effusionXSchange->GetName()
-        << " to logical volume " << lvName << G4endl;
+    if(bPrimaries == false){
+        EffusionOptrMultiParticleChangeCrossSection* effusionXSchange = new EffusionOptrMultiParticleChangeCrossSection();
+        effusionXSchange->AddParticle("GenericIon");
+        // Modify Radioactive In-Flight Decay with Sticking Time
+        for (auto lv : *G4LogicalVolumeStore::GetInstance()){
+            G4String lvName = lv->GetName();
+            effusionXSchange->AttachTo(lv);
+            G4cout << "--- Attaching biasing operator " << effusionXSchange->GetName()
+            << " to logical volume " << lvName << G4endl;
+        }
     }
 }
 

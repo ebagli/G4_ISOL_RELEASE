@@ -75,6 +75,68 @@ public:
 
 private:
     DetectorConstructionMessenger* fMessenger;
+    
+private:
+    G4bool bPrimaries;
+public:
+    void SetPrimaries(G4bool aBool) {bPrimaries=aBool;}
+    G4bool GetPrimaries() {return bPrimaries;}
+
+    /* Variables To Be Changed Via Messenger */
+
+private:
+    G4String fTargetMaterialName;
+public:
+    void SetTargetMaterialName(G4String aString) {fTargetMaterialName=aString;}
+    G4String GetTargetMaterialName() {return fTargetMaterialName;}
+
+private:
+    G4int fTargetDiskNumber;
+public:
+    void SetTargetDiskNumber(G4int aInt) {fTargetDiskNumber=aInt;}
+    G4int GetTargetDiskNumber() {return fTargetDiskNumber;}
+
+private:
+    G4double fTargetDensity;
+public:
+    void SetTargetDensity(G4double aDouble) {fTargetDensity=aDouble;}
+    G4double GetTargetDensity() {return fTargetDensity;}
+
+private:
+    G4double fTargetBoxInit;
+public:
+    void SetTargetBoxInit(G4double aDouble) {fTargetBoxInit=aDouble;}
+    G4double GetTargetBoxInit() {return fTargetBoxInit;}
+
+private:
+    G4double fTargetBoxEnd;
+public:
+    void SetTargetBoxEnd(G4double aDouble) {fTargetBoxEnd=aDouble;}
+    G4double GetTargetBoxEnd() {return fTargetBoxEnd;}
+
+private:
+    G4double fTargetDiskRadius;
+public:
+    void SetTargetDiskRadius(G4double aDouble) {fTargetDiskRadius=aDouble;}
+    G4double GetTargetDiskRadius() {return fTargetDiskRadius;}
+
+private:
+    G4double fTargetDiskPosition[MAX_DISK_NUMBER];
+public:
+    void SetTargetDiskPosition(G4int aInt, G4double aDouble) {fTargetDiskPosition[aInt]=aDouble;}
+    G4double GetTargetDiskPosition(G4int aInt) {return fTargetDiskPosition[aInt];}
+
+private:
+    G4double fTargetDiskThickness[MAX_DISK_NUMBER];
+public:
+    void SetTargetDiskThickness(G4int aInt, G4double aDouble) {fTargetDiskThickness[aInt]=aDouble;}
+    G4double GetTargetDiskThickness(G4int aInt) {return fTargetDiskThickness[aInt];}
+    
+
+
+
+
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

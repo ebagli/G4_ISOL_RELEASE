@@ -45,6 +45,7 @@ class G4UIcmdWithADouble;
 
 #include "G4UImessenger.hh"
 #include "globals.hh"
+#define MAX_DISK_NUMBER 20
 
 class DetectorConstructionMessenger: public G4UImessenger
 {
@@ -62,6 +63,16 @@ private:
     G4UIdirectory* fMyDetDirectory;
     
     G4UIcmdWithADoubleAndUnit* fTempCmd;
+    G4UIcmdWithADoubleAndUnit* fTargetDensityCmd;
+    G4UIcmdWithADoubleAndUnit* fTargetBoxInitCmd;
+    G4UIcmdWithADoubleAndUnit* fTargetBoxEndCmd;
+    G4UIcmdWithADoubleAndUnit* fTargetDiskRadiusCmd;
+    
+    G4UIcmdWithAString* fTargetMaterialCmd;
+    G4UIcmdWithADouble* fTargetDiskNumberCmd;
+
+    G4UIcmdWithADoubleAndUnit* fTargetDiskPositionCmd[MAX_DISK_NUMBER];
+    G4UIcmdWithADoubleAndUnit* fTargetDiskThicknessCmd[MAX_DISK_NUMBER];
 };
 
 #endif

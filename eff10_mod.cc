@@ -16,7 +16,8 @@
 
 
 #include "PhysicsList.hh"
-#include "QGSP_BERT.hh"
+#include "G4PhysListFactory.hh"
+#include "G4VModularPhysicsList.hh"
 #include "G4GenericBiasingPhysics.hh"
 
 #include <iostream>
@@ -39,11 +40,22 @@ int main (int argc,char** argv) {
     G4MTRunManager* runManager = new G4MTRunManager;
     runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores());
     
+    G4bool bPrimaries = false;
+    
     // Set mandatory initialization classes
-    runManager->SetUserInitialization(new DetectorConstruction());
     if(argc>2){
         if(strcmp(argv[2],"--primaries")==0){
-            runManager->SetUserInitialization(new QGSP_BERT());
+            G4PhysListFactory factory;
+            G4VModularPhysicsList* phys = 0;
+            if (argc>3) {
+                G4String physName = argv[3];
+                if(factory.IsReferencePhysList(physName))
+                    phys = factory.GetReferencePhysList(physName);
+            }
+            
+            if(!phys) phys = factory.ReferencePhysList();
+            runManager->SetUserInitialization(phys);
+
             std::cout << "........................" << std::endl;
             std::cout << "........................" << std::endl;
             std::cout << "........................" << std::endl;
@@ -51,6 +63,8 @@ int main (int argc,char** argv) {
             std::cout << "........................" << std::endl;
             std::cout << "........................" << std::endl;
             std::cout << "........................" << std::endl;
+            
+            bPrimaries = true;
         }
     }
     else{
@@ -60,7 +74,11 @@ int main (int argc,char** argv) {
         physlist->RegisterPhysics(biasingPhysics);
         runManager->SetUserInitialization(physlist);
     }
+    DetectorConstruction* detector = new DetectorConstruction();
+    detector->SetPrimaries(bPrimaries);
     
+    runManager->SetUserInitialization(detector);
+
     runManager->SetUserInitialization(new UserActionInitialization());
     
     G4UImanager* UI = G4UImanager::GetUIpointer();
