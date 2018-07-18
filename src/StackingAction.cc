@@ -30,7 +30,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 StackingAction::StackingAction(){
-    fKillSecondary  = 1;
+    fKillSecondary  = 0;
     
     
     // -- Define messengers:
