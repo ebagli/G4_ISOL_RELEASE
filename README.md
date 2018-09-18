@@ -1,7 +1,9 @@
 # Geant4 Simulation of ISOL Target Release
 
 Enrico Bagli - INFN (Italy) bagli@fe.infn.it
+
 Michele Ballan - INFN (Italy) michele.ballan@lnl.infn.it
+
 Stefano Corradetti - INFN (Italy) stefano.corradetti@lnl.infn.it 
 
 ## 1. Introduction
